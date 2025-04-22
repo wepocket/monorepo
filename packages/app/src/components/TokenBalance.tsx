@@ -1,7 +1,7 @@
 'use client'
 import { useBalance, useReadContract } from 'wagmi'
 import { useEffect } from 'react'
-import { formatBalance } from '@/utils/formatBalance'
+import { formatBalance } from '@/utils/format'
 import { erc20Abi } from 'viem'
 
 interface TokenBalanceProps {
@@ -25,12 +25,15 @@ export const TokenBalance = ({ address, tokenAddress, toFixed, onBalanceChange, 
   useEffect(() => {
     // pass the value of the balance to the parent component on change
     if (tokenBalance.data && onBalanceChange) {
-      onBalanceChange({ balance: tokenBalance.data, formattedBalance: formatBalance(tokenBalance.data, toFixed) })
+      onBalanceChange({
+        balance: tokenBalance.data,
+        formattedBalance: formatBalance(tokenBalance.data ?? BigInt(0), toFixed),
+      })
       return
     } else if (ETHBalance.data && onBalanceChange) {
       onBalanceChange({
         balance: ETHBalance.data.value,
-        formattedBalance: formatBalance(ETHBalance.data.value, toFixed),
+        formattedBalance: formatBalance(ETHBalance.data.value ?? BigInt(0), toFixed),
       })
       return
     }
@@ -39,7 +42,9 @@ export const TokenBalance = ({ address, tokenAddress, toFixed, onBalanceChange, 
   if (!ETHBalance.data && !tokenBalance.data) return null
   if (tokenAddress && tokenBalance.data) {
     return (
-      <div className={`stat-value text-lg w-[150px] ${className}`}>{formatBalance(tokenBalance.data, toFixed)}</div>
+      <div className={`stat-value text-lg w-[150px] ${className}`}>
+        {formatBalance(tokenBalance.data ?? BigInt(0), toFixed)}
+      </div>
     )
   }
   return (

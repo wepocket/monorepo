@@ -8,7 +8,7 @@ import Token from '@/assets/icons/token.png'
 import { AddressInput } from '@/components/AddressInput'
 import { TokenBalance } from '@/components/TokenBalance'
 import { TokenQuantityInput } from '@/components/TokenQuantityInput'
-import { formatBalance } from '@/utils/formatBalance'
+import { formatBalance } from '@/utils/format'
 
 type Address = `0x${string}` | undefined
 

@@ -1,6 +1,6 @@
-import { arbitrumSepolia } from '@reown/appkit/networks'
+import { arbitrum, arbitrumSepolia } from '@reown/appkit/networks'
 
-export const ETH_CHAINS = [arbitrumSepolia]
+export const ETH_CHAINS = [arbitrum, arbitrumSepolia]
 
 export const NETWORK_COLORS = {
   ethereum: {

@@ -1,4 +1,4 @@
-import { createPublicClient, createWalletClient, http } from 'viem'
+import { createPublicClient, createWalletClient, http, PublicClient, WalletClient } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, arbitrum } from 'viem/chains'
 
@@ -14,7 +14,7 @@ export function getViemProvider() {
     transport: http(),
   })
 
-  return publicClient
+  return publicClient as PublicClient
 }
 
 export function getSigner() {
@@ -25,7 +25,7 @@ export function getSigner() {
     transport: http(),
   })
 
-  return walletClient
+  return walletClient as WalletClient
 }
 
 export const getChainId = async () => (chainId = await getViemProvider().getChainId())

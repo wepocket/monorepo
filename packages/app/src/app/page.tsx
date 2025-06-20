@@ -5,41 +5,58 @@ import { useEffect, useState } from 'react'
 
 // import { CardList } from '@/components/CardList'
 // import { SITE_DESCRIPTION, SITE_NAME } from '@/utils/site'
-import { quote } from '@/utils/uniswap/quote'
-import { usePublicClient } from 'wagmi'
-import { Token } from '@uniswap/sdk-core'
+import { getQuote } from '@/utils/uniswap/quote'
+import { usePublicClient, useWalletClient } from 'wagmi'
+import { Token, TradeType } from '@uniswap/sdk-core'
 import { AVAILABLE_TOKENS } from '@/utils/uniswap/constants'
+import { createTrade, executeTrade, TransactionState } from '@/utils/uniswap/trading'
+import { Trade } from '@uniswap/v3-sdk'
 
 export default function Home() {
   const [tokenIn, setTokenIn] = useState<Token>()
   const [tokenOut, setTokenOut] = useState<Token>()
   const [amountIn, setAmoutIn] = useState<number>(0)
-  const [_quote, setQuote] = useState<string>()
+  const [quote, setQuote] = useState<string>()
+  const [trade, setTrade] = useState<Trade<Token, Token, TradeType> | undefined>()
+  const [txHash, setTxHash] = useState<`0x${string}` | TransactionState>()
   const client = usePublicClient()
+  const { data: walletClient } = useWalletClient()
 
   useEffect(() => {
-    console.log('tokenIn', tokenIn, 'tokenOut', tokenOut, 'amountIn', amountIn)
     if (tokenIn && tokenOut && amountIn)
-      quote({
+      getQuote({
         tokenIn,
         tokenOut,
         amountIn,
         client,
-      }).then((q) => {
-        console.log('quote', q)
-        setQuote(q)
-      })
+      }).then(setQuote)
   }, [tokenIn, tokenOut, client, amountIn])
+
+  const onCreateTrade = async () => {
+    if (tokenIn && tokenOut && amountIn)
+      createTrade({
+        amountIn,
+        tokenIn,
+        tokenOut,
+        client,
+        walletClient,
+      }).then(setTrade)
+  }
+
+  const onExecuteTrade = async () => {
+    if (tokenIn && tokenOut && amountIn && trade)
+      executeTrade({ amountIn, tokenIn, trade, client, walletClient }).then(setTxHash)
+  }
 
   return (
     <div className=''>
       <p>
         Token In:
         <select
-          onChange={(e) => setTokenIn(AVAILABLE_TOKENS.find((t) => t.address === e.target.value))}
+          onChange={(e) => setTokenIn(AVAILABLE_TOKENS.find((t) => t.address + '_' + t.chainId === e.target.value))}
           className='ml-8 bg-white text-black'>
           {AVAILABLE_TOKENS.map((t) => (
-            <option value={t.address} key={t.address}>
+            <option value={t.address + '_' + t.chainId} key={t.address + '_' + t.chainId}>
               {t.symbol + ' - ' + t.chainId}
             </option>
           ))}
@@ -48,10 +65,10 @@ export default function Home() {
       <p>
         Token Out:
         <select
-          onChange={(e) => setTokenOut(AVAILABLE_TOKENS.find((t) => t.address === e.target.value))}
+          onChange={(e) => setTokenOut(AVAILABLE_TOKENS.find((t) => t.address + '_' + t.chainId === e.target.value))}
           className='ml-8 bg-white text-black'>
           {AVAILABLE_TOKENS.map((t) => (
-            <option value={t.address} key={t.address}>
+            <option value={t.address + '_' + t.chainId} key={t.address + '_' + t.chainId}>
               {t.symbol + ' - ' + t.chainId}
             </option>
           ))}
@@ -65,7 +82,18 @@ export default function Home() {
           placeholder='0.00'
         />
       </p>
-      <p>Quote: {_quote}</p>
+      {quote && <p>Quote: {quote}</p>}
+      {quote && (
+        <p>
+          <button onClick={onCreateTrade}>Create Trade</button>
+        </p>
+      )}
+      {quote && (
+        <p>
+          <button onClick={onExecuteTrade}>Execute Trade</button>
+        </p>
+      )}
+      {txHash && <p>Transaction hash: {txHash}</p>}
     </div>
   )
 

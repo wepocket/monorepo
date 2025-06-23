@@ -5,12 +5,14 @@ import { useEffect, useState } from 'react'
 
 // import { CardList } from '@/components/CardList'
 // import { SITE_DESCRIPTION, SITE_NAME } from '@/utils/site'
-import { getQuote } from '@/utils/uniswap/quote'
 import { usePublicClient, useWalletClient } from 'wagmi'
 import { Token, TradeType } from '@uniswap/sdk-core'
 import { AVAILABLE_TOKENS } from '@/utils/uniswap/constants'
-import { createTrade, executeTrade, TransactionState } from '@/utils/uniswap/trading'
 import { Trade } from '@uniswap/v3-sdk'
+
+import { getQuote } from '@/utils/uniswap/quote'
+import { createTrade, executeTrade, TransactionState } from '@/utils/uniswap/trading'
+import { stakeFunds } from '@/utils/wepocket'
 
 export default function Home() {
   const [tokenIn, setTokenIn] = useState<Token>()
@@ -19,6 +21,7 @@ export default function Home() {
   const [quote, setQuote] = useState<string>()
   const [trade, setTrade] = useState<Trade<Token, Token, TradeType> | undefined>()
   const [txHash, setTxHash] = useState<`0x${string}` | TransactionState>()
+  const [txHashStake, setTxHashStake] = useState<`0x${string}` | TransactionState>()
   const client = usePublicClient()
   const { data: walletClient } = useWalletClient()
 
@@ -46,6 +49,15 @@ export default function Home() {
   const onExecuteTrade = async () => {
     if (tokenIn && tokenOut && amountIn && trade)
       executeTrade({ amountIn, tokenIn, trade, client, walletClient }).then(setTxHash)
+  }
+
+  const handleOnStakeFunds = async () => {
+    if (quote)
+      stakeFunds({
+        amountIn: Number(quote),
+        client,
+        walletClient,
+      }).then(setTxHashStake)
   }
 
   return (
@@ -85,15 +97,27 @@ export default function Home() {
       {quote && <p>Quote: {quote}</p>}
       {quote && (
         <p>
-          <button onClick={onCreateTrade}>Create Trade</button>
+          <button className='bg-peru' onClick={onCreateTrade}>
+            Create Trade
+          </button>
         </p>
       )}
       {quote && (
         <p>
-          <button onClick={onExecuteTrade}>Execute Trade</button>
+          <button className='bg-peru' onClick={onExecuteTrade}>
+            Execute Trade
+          </button>
         </p>
       )}
       {txHash && <p>Transaction hash: {txHash}</p>}
+      {txHash && (
+        <p>
+          <button onClick={handleOnStakeFunds} className='bg-peru'>
+            Stake USDT Funds
+          </button>
+        </p>
+      )}
+      {txHashStake && <p>Transaction hash: {txHashStake}</p>}
     </div>
   )
 

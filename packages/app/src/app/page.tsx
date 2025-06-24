@@ -12,7 +12,7 @@ import { Trade } from '@uniswap/v3-sdk'
 
 import { getQuote } from '@/utils/uniswap/quote'
 import { createTrade, executeTrade, TransactionState } from '@/utils/uniswap/trading'
-import { stakeFunds } from '@/utils/wepocket'
+import { stakeFunds, unstakeFunds } from '@/utils/wepocket'
 
 export default function Home() {
   const [tokenIn, setTokenIn] = useState<Token>()
@@ -60,8 +60,17 @@ export default function Home() {
       }).then(setTxHashStake)
   }
 
+  const handleOnUnstakeFunds = async () => {
+    unstakeFunds({ client, walletClient })
+  }
+
   return (
     <div className=''>
+      <p>
+        <button className='bg-gray-500' onClick={handleOnUnstakeFunds}>
+          unstake legacy
+        </button>
+      </p>
       <p>
         Token In:
         <select
@@ -97,14 +106,14 @@ export default function Home() {
       {quote && <p>Quote: {quote}</p>}
       {quote && (
         <p>
-          <button className='bg-peru' onClick={onCreateTrade}>
+          <button className='bg-gray-500' onClick={onCreateTrade}>
             Create Trade
           </button>
         </p>
       )}
       {quote && (
         <p>
-          <button className='bg-peru' onClick={onExecuteTrade}>
+          <button className='bg-gray-500' onClick={onExecuteTrade}>
             Execute Trade
           </button>
         </p>
@@ -112,7 +121,7 @@ export default function Home() {
       {txHash && <p>Transaction hash: {txHash}</p>}
       {txHash && (
         <p>
-          <button onClick={handleOnStakeFunds} className='bg-peru'>
+          <button onClick={handleOnStakeFunds} className='bg-gray-500'>
             Stake USDT Funds
           </button>
         </p>

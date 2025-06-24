@@ -1,7 +1,7 @@
 import { erc20Abi, Hash, PublicClient, WalletClient } from 'viem'
 
 import { getSigner, getViemProvider } from '../viem'
-import { WEPOCKET_CONTROLLER_ABI, WEPOCKET_CONTROLLER_ADDRESS } from './constants'
+import { LEGACY_WEPOCKET_CONTROLLER_ADDRESS, WEPOCKET_CONTROLLER_ABI, WEPOCKET_CONTROLLER_ADDRESS } from './constants'
 import { fromReadableAmount } from '../uniswap/conversion'
 import { USDT_TOKEN_ARB } from '../uniswap/constants'
 import { TransactionState } from '../uniswap/trading'
@@ -36,7 +36,7 @@ export async function stakeFunds({
       account: signer.account,
       abi: WEPOCKET_CONTROLLER_ABI,
       args: [amountIn],
-      functionName: 'stake',
+      functionName: 'stakeStables',
     })
 
     return await signer.writeContract(request)
@@ -44,4 +44,25 @@ export async function stakeFunds({
     console.error(e)
     return TransactionState.Failed
   }
+}
+
+export const unstakeFunds = async ({
+  client,
+  walletClient,
+}: {
+  client?: PublicClient
+  walletClient?: WalletClient
+}) => {
+  const provider = client || getViemProvider()
+  const signer = walletClient || getSigner()
+
+  const { request } = await provider.simulateContract({
+    address: LEGACY_WEPOCKET_CONTROLLER_ADDRESS,
+    account: signer.account,
+    abi: WEPOCKET_CONTROLLER_ABI,
+    args: [],
+    functionName: 'unstake',
+  })
+
+  return await signer.writeContract(request)
 }

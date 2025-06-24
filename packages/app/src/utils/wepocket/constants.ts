@@ -1,15 +1,11 @@
-export const WEPOCKET_CONTROLLER_ADDRESS = '0x15177d1e4bfde493465170599df4c829d8a0ea17' as `0x${string}`
+export const LEGACY_WEPOCKET_CONTROLLER_ADDRESS = '0x15177d1E4BfDE493465170599df4c829D8A0ea17' as `0x${string}`
+
+export const WEPOCKET_CONTROLLER_ADDRESS = '0x247D9218f5Cc2086F2A3fB7f4d97fFfBA7f9092f' as `0x${string}`
 
 export const WEPOCKET_CONTROLLER_ABI = [
   {
     type: 'constructor',
-    inputs: [
-      {
-        name: '_stakingToken',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
+    inputs: [],
     stateMutability: 'nonpayable',
   },
   {
@@ -43,19 +39,6 @@ export const WEPOCKET_CONTROLLER_ABI = [
   },
   {
     type: 'function',
-    name: 'USDT',
-    inputs: [],
-    outputs: [
-      {
-        name: '',
-        type: 'address',
-        internalType: 'contract IERC20',
-      },
-    ],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     name: 'owner',
     inputs: [],
     outputs: [
@@ -76,7 +59,20 @@ export const WEPOCKET_CONTROLLER_ABI = [
   },
   {
     type: 'function',
-    name: 'stake',
+    name: 'stakeNative',
+    inputs: [
+      {
+        name: '_amountToStake',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'stakeStables',
     inputs: [
       {
         name: '_amountToStake',
@@ -134,10 +130,57 @@ export const WEPOCKET_CONTROLLER_ABI = [
   },
   {
     type: 'function',
+    name: 'unstakeStables',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    // legacy
+    type: 'function',
     name: 'unstake',
     inputs: [],
     outputs: [],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'usdc',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract IERC20',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'usdt',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract IERC20',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'weth',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract IWETH',
+      },
+    ],
+    stateMutability: 'view',
   },
   {
     type: 'event',

@@ -1,40 +1,35 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
 
-import {Main} from '../src/Main.sol';
-import {USDT} from '../src/USDT.sol';
+import "@prb/test/src/PRBTest.sol";
+
+import "../src/Main.sol";
 
 
-// forge test -vvvv --fork-url https://arb-mainnet.g.alchemy.com/v2/oO7MPAUyViFZB7XJCxahLuBuHh5TKNjF
-contract MainTest is Test {
-    Main public main;
-    USDT usdt;
-
-    address alice = makeAddr("alice");
-    uint256 public constant TokensInitialSupply = 1_000_000;
+// forge test -vvvv
+contract MainTest is PRBTest {
+    Main private main;
+    IWETH private immutable weth = IWETH(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1);
+    uint256 private arbFork;
 
     function setUp() public {
-        usdt = new USDT(TokensInitialSupply);
-        main = new Main(address(usdt));
+        arbFork = vm.createSelectFork({ urlOrAlias: "https://arb-mainnet.g.alchemy.com/v2/oO7MPAUyViFZB7XJCxahLuBuHh5TKNjF" });
 
-        vm.deal(address(alice), 1 ether);
+        main = new Main();
+    }
 
-        vm.prank(address(this));
-        usdt.transfer(alice, 1000);
+    function testCanSelectFork() public {
+        vm.selectFork(arbFork);
+
+        assertEq(vm.activeFork(), arbFork);
     }
 
     function testStake() public {
-        assertEq(usdt.balanceOf(address(alice)), 1000);
+        weth.deposit{ value: 1e18 }();
+        weth.approve(address(main), 1e18);
 
-        uint256 amount = 1000;
-
-        vm.prank(address(alice));
-        usdt.approve(address(main), 1000);
-
-        vm.prank(address(alice));
-        main.stake(amount);
+        main.stakeNative(1e18);
 
         assertEq(main.stakersCount(), 1);
     }

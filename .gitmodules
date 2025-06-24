@@ -4,3 +4,11 @@
 [submodule "packages/foundry/lib/openzeppelin-contracts"]
 	path = packages/foundry/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "packages/foundry/lib/ccip"]
+	path = packages/foundry/lib/ccip
+	url = https://github.com/smartcontractkit/ccip
+[submodule "packages/foundry/lib/prb-test"]
+	path = packages/foundry/lib/prb-test
+	url = https://github.com/PaulRBerg/prb-test
+[submodule "lib/prb-test"]
+	branch = release-v0

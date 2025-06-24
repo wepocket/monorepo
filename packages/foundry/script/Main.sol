@@ -10,13 +10,7 @@
 [
   {
     "type": "constructor",
-    "inputs": [
-      {
-        "name": "_stakingToken",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
+    "inputs": [],
     "stateMutability": "nonpayable"
   },
   {
@@ -50,19 +44,6 @@
   },
   {
     "type": "function",
-    "name": "USDT",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "contract IERC20"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
     "name": "owner",
     "inputs": [],
     "outputs": [
@@ -83,7 +64,20 @@
   },
   {
     "type": "function",
-    "name": "stake",
+    "name": "stakeNative",
+    "inputs": [
+      {
+        "name": "_amountToStake",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "stakeStables",
     "inputs": [
       {
         "name": "_amountToStake",
@@ -141,10 +135,49 @@
   },
   {
     "type": "function",
-    "name": "unstake",
+    "name": "unstakeStables",
     "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "usdc",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IERC20"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "usdt",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IERC20"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "weth",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IWETH"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "event",
@@ -243,12 +276,12 @@
 ]
 
 Deployer: 0x2a1b75f0D91C6cBFe8285d5a8624965CDFdeBd63
-Deployed to: 0x15177d1E4BfDE493465170599df4c829D8A0ea17
-Transaction hash: 0x3ee41ac8a68acc4f915f5e80dcfd6423c4a20886cdd01d00fd016d99f6c12d76
+Deployed to: 0x247D9218f5Cc2086F2A3fB7f4d97fFfBA7f9092f
+Transaction hash: 0x36e02ae1da79c3650b72d4184afe9358537e3c657b47d3a95efcb91282b2c4af
 */
 // // anvil --fork-url https://arb-mainnet.g.alchemy.com/v2/oO7MPAUyViFZB7XJCxahLuBuHh5TKNjF --chain-id 639
-// // forge create ./src/Main.sol:Main --interactive --constructor-args "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
-// forge create ./src/Main.sol:Main --interactive --broadcast --rpc-url "https://arb-mainnet.g.alchemy.com/v2/oO7MPAUyViFZB7XJCxahLuBuHh5TKNjF" --constructor-args "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+// forge create ./src/Main.sol:Main --interactive --broadcast --rpc-url "https://arb-mainnet.g.alchemy.com/v2/oO7MPAUyViFZB7XJCxahLuBuHh5TKNjF"
+// https://base-mainnet.g.alchemy.com/v2/oO7MPAUyViFZB7XJCxahLuBuHh5TKNjF
 // contract MainScript is Script {
 
 //   function setUp() public {

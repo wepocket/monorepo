@@ -57,18 +57,18 @@ contract Main is Ownable {
     /*/////////////////////////////////////////////////////////////////////////////////////////////////////////
                                             Public Functions
     /////////////////////////////////////////////////////////////////////////////////////////////////////////*/
-    function stakeStables(uint256 _amountToStake) public  returns (uint256 amountOut) {
+    function stakeStables(uint256 _amountToStake) external  returns (uint256 amountOut) {
         if (_amountToStake <= 0) {
             revert Main__amountMustBeGreaterThanZero();
         }
 
-        if (!Stakes[msg.sender].hasStaked) {
-            stakers.push(msg.sender);
-        } else {
+        if (Stakes[msg.sender].isStaking) {
             revert Main__activeStakingPresent();
         }
 
-
+        if (!Stakes[msg.sender].hasStaked) {
+            stakers.push(msg.sender);
+        }
 
         usdt.approve(msg.sender, _amountToStake);
         (bool success) = usdt.transferFrom(msg.sender, address(this), _amountToStake);
@@ -89,15 +89,17 @@ contract Main is Ownable {
         amountOut;
     }
 
-    function stakeNative(uint256 _amountToStake) public returns (uint256 amountOut) {
+    function stakeNative(uint256 _amountToStake) external returns (uint256 amountOut) {
         if (_amountToStake <= 0) {
             revert Main__amountMustBeGreaterThanZero();
         }
 
+        if (Stakes[msg.sender].isStaking) {
+            revert Main__activeStakingPresent();
+        }
+
         if (!Stakes[msg.sender].hasStaked) {
             stakers.push(msg.sender);
-        } else {
-            revert Main__activeStakingPresent();
         }
 
         weth.approve(msg.sender, _amountToStake);
@@ -119,7 +121,7 @@ contract Main is Ownable {
         amountOut;
     }
 
-    function _unstakeStables(address _user) private {
+    function _unstake(address _user) private {
         uint256 amountToUnstake = Stakes[_user].stakedBalance;
 
         if (amountToUnstake <= 0) {
@@ -127,51 +129,28 @@ contract Main is Ownable {
         }
 
         Stakes[_user].stakedBalance = 0;
-
         Stakes[_user].isStaking = false;
+
         emit SuccessfulUnstake(_user, amountToUnstake);
 
         usdc.transfer(_user, amountToUnstake);
     }
 
-    function unstakeStables() public {
-        _unstakeStables(msg.sender);
+    function unstake() external {
+        _unstake(msg.sender);
     }
 
-    function _unstakeNative(address _user) private {
-        uint256 amountToUnstake = Stakes[_user].stakedBalance;
-
-        if (amountToUnstake <= 0) {
-            revert Main__stakingBalanceMustBeGreaterThanZero();
-        }
-
-        Stakes[_user].stakedBalance = 0;
-
-        Stakes[_user].isStaking = false;
-        emit SuccessfulUnstake(_user, amountToUnstake);
-
-        weth.transfer(_user, amountToUnstake);
-    }
-
-    function unstakeNative() public {
-        _unstakeNative(msg.sender);
-    }
-
-    function unstakeUserFunds(address _user) public onlyOwner {
-        if (Stakes[_user].isStaking == true) {
-            if (Stakes[_user].stakingType == StakingType.USDC) {
-                _unstakeStables(_user);
-            } else {
-                _unstakeNative(_user);
-            }
+    function unstakeUserFunds(address _user) external onlyOwner {
+        if (Stakes[_user].isStaking) {
+            _unstake(_user);
         }
     }
 
-    function stakersCount() public view returns (uint256) {
+    function stakersCount() external view returns (uint256) {
         return stakers.length;
     }
 
-    function isUserStaking(address _user) public view returns (bool, StakingType, uint256) {
+    function isUserStaking(address _user) external view returns (bool, StakingType, uint256) {
         return (Stakes[_user].isStaking, Stakes[_user].stakingType, Stakes[_user].stakedBalance);
     }
 

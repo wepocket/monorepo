@@ -3,7 +3,8 @@ export enum StakingType {
   WETH,
 }
 
-export const WEPOCKET_CONTROLLER_ADDRESS = '0x103935743EE623F91b147771482EE61C8756B5bC' as `0x${string}`
+// export const WEPOCKET_CONTROLLER_ADDRESS = '0x103935743EE623F91b147771482EE61C8756B5bC' as `0x${string}`
+export const WEPOCKET_CONTROLLER_ADDRESS = '0xb6c13f4E58976392E39DD1355cF6E10873444d38' as `0x${string}`
 
 export const WEPOCKET_CONTROLLER_ABI = [
   {
@@ -43,13 +44,6 @@ export const WEPOCKET_CONTROLLER_ABI = [
       },
     ],
     stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'unstakeNative',
-    outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -186,7 +180,7 @@ export const WEPOCKET_CONTROLLER_ABI = [
   },
   {
     inputs: [],
-    name: 'unstakeStables',
+    name: 'unstake',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',

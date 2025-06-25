@@ -2,7 +2,9 @@ import { createPublicClient, createWalletClient, http, PublicClient, WalletClien
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, arbitrum } from 'viem/chains'
 
-const currentChain = arbitrum || mainnet
+import { localhost } from './network'
+
+const currentChain = localhost || arbitrum || mainnet
 
 export let chainId = 0
 

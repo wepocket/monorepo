@@ -1,10 +1,12 @@
-import { erc20Abi, Hash, PublicClient, WalletClient } from 'viem'
+import { erc20Abi, Hash, parseAbi, PublicClient, WalletClient } from 'viem'
 
 import { getSigner, getViemProvider } from '../viem'
 import { StakingType, WEPOCKET_CONTROLLER_ABI, WEPOCKET_CONTROLLER_ADDRESS } from './constants'
 import { fromReadableAmount, toReadableAmount } from '../uniswap/conversion'
-import { USDT_TOKEN_ARB, USDC_TOKEN_ARB } from '../uniswap/constants'
+import { USDT_TOKEN_ARB, USDC_TOKEN_ARB, WETH_TOKEN_LOCAL } from '../uniswap/constants'
 import { TransactionState } from '../uniswap/trading'
+
+const isDev = true
 
 export async function stakeFunds({
   amountIn: _amountIn,
@@ -18,11 +20,27 @@ export async function stakeFunds({
   const provider = client || getViemProvider()
   const signer = walletClient || getSigner()
 
+  const token = isDev ? WETH_TOKEN_LOCAL : USDT_TOKEN_ARB
+
   try {
-    const amountIn = fromReadableAmount(_amountIn, USDT_TOKEN_ARB.decimals)
+    if (isDev) {
+      const amountIn = fromReadableAmount(_amountIn, token.decimals)
+
+      const { request } = await provider.simulateContract({
+        address: token.address as `0x${string}`,
+        account: signer.account,
+        abi: isDev ? parseAbi(['function deposit() public payable']) : erc20Abi,
+        value: amountIn,
+        functionName: 'deposit',
+      })
+
+      await signer.writeContract(request)
+    }
+
+    const amountIn = fromReadableAmount(_amountIn, token.decimals)
 
     const { request: requestAllowance } = await provider.simulateContract({
-      address: USDT_TOKEN_ARB.address as `0x${string}`,
+      address: token.address as `0x${string}`,
       account: signer.account,
       abi: erc20Abi,
       args: [WEPOCKET_CONTROLLER_ADDRESS, amountIn],
@@ -36,7 +54,7 @@ export async function stakeFunds({
       account: signer.account,
       abi: WEPOCKET_CONTROLLER_ABI,
       args: [amountIn],
-      functionName: 'stakeStables',
+      functionName: isDev ? 'stakeNative' : 'stakeStables',
     })
 
     return await signer.writeContract(request)
@@ -61,6 +79,7 @@ export const getUserStakingState = async ({ address, client }: { address: `0x${s
     functionName: 'isUserStaking',
     args: [address],
   })
+
   const [isUserStaking, stakingType, stakingBalance] = r as [boolean, StakingType, bigint]
 
   return {
@@ -71,11 +90,9 @@ export const getUserStakingState = async ({ address, client }: { address: `0x${s
 }
 
 export const unstakeFunds = async ({
-  stakingType,
   client,
   walletClient,
 }: {
-  stakingType: StakingType
   client?: PublicClient
   walletClient?: WalletClient
 }): Promise<TransactionState | Hash> => {
@@ -86,8 +103,7 @@ export const unstakeFunds = async ({
     address: WEPOCKET_CONTROLLER_ADDRESS,
     account: signer.account,
     abi: WEPOCKET_CONTROLLER_ABI,
-    args: [],
-    functionName: stakingType === StakingType.USDC ? 'unstakeStables' : 'unstakeNative',
+    functionName: 'unstake',
   })
 
   return await signer.writeContract(request)

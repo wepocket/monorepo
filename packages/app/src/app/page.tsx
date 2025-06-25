@@ -13,7 +13,7 @@ import { Trade } from '@uniswap/v3-sdk'
 import { getQuote } from '@/utils/uniswap/quote'
 import { createTrade, executeTrade, TransactionState } from '@/utils/uniswap/trading'
 import { getUserStakingState, stakeFunds, StakingStatus, unstakeFunds } from '@/utils/wepocket'
-import { StakingType } from '@/utils/wepocket/constants'
+import { localhost } from '@/utils/network'
 
 export default function Home() {
   const [tokenIn, setTokenIn] = useState<Token>()
@@ -24,7 +24,8 @@ export default function Home() {
   const [txHash, setTxHash] = useState<`0x${string}` | TransactionState>()
   const [txHashStake, setTxHashStake] = useState<`0x${string}` | TransactionState>()
   const [userStakingState, setUserStakingState] = useState<StakingStatus | undefined>()
-  const client = usePublicClient()
+  const client = usePublicClient({ chainId: localhost.id })
+
   const { data: walletClient } = useWalletClient()
 
   useEffect(() => {
@@ -60,7 +61,8 @@ export default function Home() {
       executeTrade({ amountIn, tokenIn, trade, client, walletClient }).then(setTxHash)
   }
 
-  const handleOnStakeFunds = async () => {
+  // eslint-disable-next-line
+  const _handleOnStakeFunds = async () => {
     if (quote)
       stakeFunds({
         amountIn: Number(quote),
@@ -69,8 +71,16 @@ export default function Home() {
       }).then(setTxHashStake)
   }
 
+  const handleOnStakeFunds = async () => {
+    stakeFunds({
+      amountIn: 0.01,
+      client,
+      walletClient,
+    }).then(setTxHashStake)
+  }
+
   const handleOnUnstakeFunds = async () => {
-    if (userStakingState) unstakeFunds({ stakingType: userStakingState?.stakingType, client, walletClient })
+    if (userStakingState) unstakeFunds({ client, walletClient })
   }
 
   return (
@@ -78,8 +88,7 @@ export default function Home() {
       {userStakingState?.isUserStaking && (
         <p>
           <button className='bg-gray-500' onClick={handleOnUnstakeFunds}>
-            Unkstake Funds {userStakingState.stakingBalance}{' '}
-            {userStakingState.stakingType === StakingType.USDC ? 'USDC' : 'WETH'}
+            Unkstake Funds {userStakingState.stakingBalance} USDC
           </button>
         </p>
       )}
@@ -131,13 +140,11 @@ export default function Home() {
         </p>
       )}
       {txHash && <p>Transaction hash: {txHash}</p>}
-      {txHash && (
-        <p>
-          <button onClick={handleOnStakeFunds} className='bg-gray-500'>
-            Stake USDT Funds
-          </button>
-        </p>
-      )}
+      <p>
+        <button onClick={handleOnStakeFunds} className='bg-gray-500'>
+          Stake USDT Funds
+        </button>
+      </p>
       {txHashStake && <p>Transaction hash: {txHashStake}</p>}
     </div>
   )

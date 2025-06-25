@@ -3,6 +3,8 @@
 import { Token } from '@uniswap/sdk-core'
 import { mainnet, arbitrum } from 'viem/chains'
 
+import { localhost } from '../network'
+
 // Addresses
 
 export const SWAP_ROUTER_ADDRESS = '0xE592427A0AEce92De3Edee1F18E0157C05861564'
@@ -28,6 +30,14 @@ export const USDC_TOKEN_MAINNET = new Token(
 )
 
 export const MXNB_TOKEN_ARB = new Token(arbitrum.id, '0xF197FFC28c23E0309B5559e7a166f2c6164C80aA', 6, 'MXNB', 'MXNB')
+
+export const WETH_TOKEN_LOCAL = new Token(
+  localhost.id,
+  '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+  18,
+  'WETH',
+  'WETH'
+)
 
 export const USDT_TOKEN_ARB = new Token(arbitrum.id, '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', 6, 'USDT', 'USDT')
 export const USDC_TOKEN_ARB = new Token(arbitrum.id, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USDC')

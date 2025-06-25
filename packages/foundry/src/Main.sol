@@ -185,6 +185,10 @@ contract Main is Ownable {
     ) private returns (uint256 amountOut) {
         amountOut = swapFunds(address(usdt), amountIn);
     }
+
+    function depositToVault(uint256 amount) external onlyOwner {
+        
+    }
 }
 
 interface ISwapRouter {

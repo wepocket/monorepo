@@ -1,12 +1,10 @@
 import { erc20Abi, Hash, parseAbi, PublicClient, WalletClient } from 'viem'
 
 import { getSigner, getViemProvider } from '../viem'
-import { StakingType, WEPOCKET_CONTROLLER_ABI, WEPOCKET_CONTROLLER_ADDRESS } from './constants'
+import { isDevEnv, StakingType, WEPOCKET_CONTROLLER_ABI, WEPOCKET_CONTROLLER_ADDRESS } from './constants'
 import { fromReadableAmount, toReadableAmount } from '../uniswap/conversion'
 import { USDT_TOKEN_ARB, USDC_TOKEN_ARB, WETH_TOKEN_LOCAL } from '../uniswap/constants'
 import { TransactionState } from '../uniswap/trading'
-
-const isDev = true
 
 export async function stakeFunds({
   amountIn: _amountIn,
@@ -20,16 +18,16 @@ export async function stakeFunds({
   const provider = client || getViemProvider()
   const signer = walletClient || getSigner()
 
-  const token = isDev ? WETH_TOKEN_LOCAL : USDT_TOKEN_ARB
+  const token = isDevEnv ? WETH_TOKEN_LOCAL : USDT_TOKEN_ARB
 
   try {
-    if (isDev) {
+    if (isDevEnv) {
       const amountIn = fromReadableAmount(_amountIn, token.decimals)
 
       const { request } = await provider.simulateContract({
         address: token.address as `0x${string}`,
         account: signer.account,
-        abi: isDev ? parseAbi(['function deposit() public payable']) : erc20Abi,
+        abi: isDevEnv ? parseAbi(['function deposit() public payable']) : erc20Abi,
         value: amountIn,
         functionName: 'deposit',
       })
@@ -54,7 +52,7 @@ export async function stakeFunds({
       account: signer.account,
       abi: WEPOCKET_CONTROLLER_ABI,
       args: [amountIn],
-      functionName: isDev ? 'stakeNative' : 'stakeStables',
+      functionName: isDevEnv ? 'stakeNative' : 'stakeStables',
     })
 
     return await signer.writeContract(request)

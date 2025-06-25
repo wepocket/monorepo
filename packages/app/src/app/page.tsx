@@ -12,7 +12,8 @@ import { Trade } from '@uniswap/v3-sdk'
 
 import { getQuote } from '@/utils/uniswap/quote'
 import { createTrade, executeTrade, TransactionState } from '@/utils/uniswap/trading'
-import { stakeFunds, unstakeFunds } from '@/utils/wepocket'
+import { getUserStakingState, stakeFunds, StakingStatus, unstakeFunds } from '@/utils/wepocket'
+import { StakingType } from '@/utils/wepocket/constants'
 
 export default function Home() {
   const [tokenIn, setTokenIn] = useState<Token>()
@@ -22,6 +23,7 @@ export default function Home() {
   const [trade, setTrade] = useState<Trade<Token, Token, TradeType> | undefined>()
   const [txHash, setTxHash] = useState<`0x${string}` | TransactionState>()
   const [txHashStake, setTxHashStake] = useState<`0x${string}` | TransactionState>()
+  const [userStakingState, setUserStakingState] = useState<StakingStatus | undefined>()
   const client = usePublicClient()
   const { data: walletClient } = useWalletClient()
 
@@ -34,6 +36,13 @@ export default function Home() {
         client,
       }).then(setQuote)
   }, [tokenIn, tokenOut, client, amountIn])
+
+  useEffect(() => {
+    getUserStakingState({
+      address: walletClient?.account.address as `0x${string}`,
+      client,
+    }).then(setUserStakingState)
+  }, [client, walletClient?.account.address])
 
   const onCreateTrade = async () => {
     if (tokenIn && tokenOut && amountIn)
@@ -61,16 +70,19 @@ export default function Home() {
   }
 
   const handleOnUnstakeFunds = async () => {
-    unstakeFunds({ client, walletClient })
+    if (userStakingState) unstakeFunds({ stakingType: userStakingState?.stakingType, client, walletClient })
   }
 
   return (
     <div className=''>
-      <p>
-        <button className='bg-gray-500' onClick={handleOnUnstakeFunds}>
-          unstake legacy
-        </button>
-      </p>
+      {userStakingState?.isUserStaking && (
+        <p>
+          <button className='bg-gray-500' onClick={handleOnUnstakeFunds}>
+            Unkstake Funds {userStakingState.stakingBalance}{' '}
+            {userStakingState.stakingType === StakingType.USDC ? 'USDC' : 'WETH'}
+          </button>
+        </p>
+      )}
       <p>
         Token In:
         <select

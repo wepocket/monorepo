@@ -16,18 +16,24 @@ contract Main is Ownable {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////*/
     error Main__amountMustBeGreaterThanZero();
     error Main__stakingBalanceMustBeGreaterThanZero();
-    error Main__TransferFailed();
+    error Main__transferFailed();
+    error Main__activeStakingPresent();
 
 
 
     /*/////////////////////////////////////////////////////////////////////////////////////////////////////////
                                             Variables
     /////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+    enum StakingType {
+        USDC,
+        WETH
+    }
     address[] public stakers;
     struct StakeInfo {
-        uint256 StakedBalance;
+        uint256 stakedBalance;
         bool hasStaked;
         bool isStaking;
+        StakingType stakingType;
     }
     mapping(address user => StakeInfo) public Stakes;
 
@@ -51,72 +57,122 @@ contract Main is Ownable {
     /*/////////////////////////////////////////////////////////////////////////////////////////////////////////
                                             Public Functions
     /////////////////////////////////////////////////////////////////////////////////////////////////////////*/
-    function stakeStables(uint256 _amountToStake) public {
+    function stakeStables(uint256 _amountToStake) public  returns (uint256 amountOut) {
         if (_amountToStake <= 0) {
             revert Main__amountMustBeGreaterThanZero();
         }
 
         if (!Stakes[msg.sender].hasStaked) {
             stakers.push(msg.sender);
+        } else {
+            revert Main__activeStakingPresent();
         }
 
-        Stakes[msg.sender].StakedBalance += _amountToStake;
-        emit SuccessfulStaked(msg.sender, _amountToStake);
 
-        Stakes[msg.sender].hasStaked = true;
-        Stakes[msg.sender].isStaking = true;
 
         usdt.approve(msg.sender, _amountToStake);
         (bool success) = usdt.transferFrom(msg.sender, address(this), _amountToStake);
 
-        if(!success) {
-            revert Main__TransferFailed();
+        if (!success) {
+            revert Main__transferFailed();
         }
 
-        swapStableFunds(_amountToStake);
+        amountOut = swapStableFunds(_amountToStake);
+
+        Stakes[msg.sender].hasStaked = true;
+        Stakes[msg.sender].isStaking = true;
+        Stakes[msg.sender].stakingType = StakingType.USDC;
+
+        Stakes[msg.sender].stakedBalance += amountOut;
+        emit SuccessfulStaked(msg.sender, amountOut);
+
+        amountOut;
     }
 
-    function stakeNative(uint256 _amountToStake) public {
+    function stakeNative(uint256 _amountToStake) public returns (uint256 amountOut) {
         if (_amountToStake <= 0) {
             revert Main__amountMustBeGreaterThanZero();
         }
 
         if (!Stakes[msg.sender].hasStaked) {
             stakers.push(msg.sender);
+        } else {
+            revert Main__activeStakingPresent();
         }
-
-        Stakes[msg.sender].StakedBalance += _amountToStake;
-        emit SuccessfulStaked(msg.sender, _amountToStake);
-
-        Stakes[msg.sender].hasStaked = true;
-        Stakes[msg.sender].isStaking = true;
 
         weth.approve(msg.sender, _amountToStake);
         (bool success) = weth.transferFrom(msg.sender, address(this), _amountToStake);
 
-        if(!success) {
-            revert Main__TransferFailed();
+        if (!success) {
+            revert Main__transferFailed();
         }
 
-        swapNativeFunds(_amountToStake);
+        amountOut = swapNativeFunds(_amountToStake);
+
+        Stakes[msg.sender].hasStaked = true;
+        Stakes[msg.sender].isStaking = true;
+        Stakes[msg.sender].stakingType = StakingType.WETH;
+        Stakes[msg.sender].stakedBalance += amountOut;
+
+        emit SuccessfulStaked(msg.sender, amountOut);
+
+        amountOut;
     }
 
-    function unstakeStables() public {
-        uint256 amountToUnstake = Stakes[msg.sender].StakedBalance;
+    function _unstakeStables(address _user) private {
+        uint256 amountToUnstake = Stakes[_user].stakedBalance;
+
         if (amountToUnstake <= 0) {
             revert Main__stakingBalanceMustBeGreaterThanZero();
         }
 
-        Stakes[msg.sender].StakedBalance = 0;
+        Stakes[_user].stakedBalance = 0;
 
-        Stakes[msg.sender].isStaking = false;
-        emit SuccessfulUnstake(msg.sender, amountToUnstake);
+        Stakes[_user].isStaking = false;
+        emit SuccessfulUnstake(_user, amountToUnstake);
 
-        usdt.transfer(msg.sender, amountToUnstake);
+        usdc.transfer(_user, amountToUnstake);
+    }
+
+    function unstakeStables() public {
+        _unstakeStables(msg.sender);
+    }
+
+    function _unstakeNative(address _user) private {
+        uint256 amountToUnstake = Stakes[_user].stakedBalance;
+
+        if (amountToUnstake <= 0) {
+            revert Main__stakingBalanceMustBeGreaterThanZero();
+        }
+
+        Stakes[_user].stakedBalance = 0;
+
+        Stakes[_user].isStaking = false;
+        emit SuccessfulUnstake(_user, amountToUnstake);
+
+        weth.transfer(_user, amountToUnstake);
+    }
+
+    function unstakeNative() public {
+        _unstakeNative(msg.sender);
+    }
+
+    function unstakeUserFunds(address _user) public onlyOwner {
+        if (Stakes[_user].isStaking == true) {
+            if (Stakes[_user].stakingType == StakingType.USDC) {
+                _unstakeStables(_user);
+            } else {
+                _unstakeNative(_user);
+            }
+        }
     }
 
     function stakersCount() public view returns (uint256) {
         return stakers.length;
+    }
+
+    function isUserStaking(address _user) public view returns (bool, StakingType, uint256) {
+        return (Stakes[_user].isStaking, Stakes[_user].stakingType, Stakes[_user].stakedBalance);
     }
 
     function swapFunds(

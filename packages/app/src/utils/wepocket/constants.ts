@@ -1,279 +1,345 @@
-export const LEGACY_WEPOCKET_CONTROLLER_ADDRESS = '0x15177d1E4BfDE493465170599df4c829D8A0ea17' as `0x${string}`
+export enum StakingType {
+  USDC,
+  WETH,
+}
 
-export const WEPOCKET_CONTROLLER_ADDRESS = '0x247D9218f5Cc2086F2A3fB7f4d97fFfBA7f9092f' as `0x${string}`
+export const WEPOCKET_CONTROLLER_ADDRESS = '0x103935743EE623F91b147771482EE61C8756B5bC' as `0x${string}`
 
 export const WEPOCKET_CONTROLLER_ABI = [
   {
-    type: 'constructor',
     inputs: [],
     stateMutability: 'nonpayable',
+    type: 'constructor',
   },
   {
-    type: 'function',
-    name: 'Stakes',
     inputs: [
       {
+        internalType: 'address',
         name: 'user',
         type: 'address',
-        internalType: 'address',
       },
     ],
+    name: 'Stakes',
     outputs: [
       {
-        name: 'StakedBalance',
-        type: 'uint256',
         internalType: 'uint256',
+        name: 'stakedBalance',
+        type: 'uint256',
       },
       {
+        internalType: 'bool',
         name: 'hasStaked',
         type: 'bool',
-        internalType: 'bool',
       },
       {
+        internalType: 'bool',
         name: 'isStaking',
         type: 'bool',
+      },
+      {
+        internalType: 'enum Main.StakingType',
+        name: 'stakingType',
+        type: 'uint8',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'unstakeNative',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'isUserStaking',
+    outputs: [
+      {
         internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+      {
+        internalType: 'enum Main.StakingType',
+        name: '',
+        type: 'uint8',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
     stateMutability: 'view',
+    type: 'function',
   },
   {
-    type: 'function',
+    inputs: [],
     name: 'owner',
-    inputs: [],
     outputs: [
       {
+        internalType: 'address',
         name: '',
         type: 'address',
-        internalType: 'address',
       },
     ],
     stateMutability: 'view',
+    type: 'function',
   },
   {
-    type: 'function',
+    inputs: [],
     name: 'renounceOwnership',
-    inputs: [],
     outputs: [],
     stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
-    type: 'function',
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_amountToStake',
+        type: 'uint256',
+      },
+    ],
     name: 'stakeNative',
-    inputs: [
-      {
-        name: '_amountToStake',
-        type: 'uint256',
-        internalType: 'uint256',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'stakeStables',
-    inputs: [
-      {
-        name: '_amountToStake',
-        type: 'uint256',
-        internalType: 'uint256',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'stakers',
-    inputs: [
-      {
-        name: '',
-        type: 'uint256',
-        internalType: 'uint256',
-      },
-    ],
     outputs: [
       {
+        internalType: 'uint256',
+        name: 'amountOut',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_amountToStake',
+        type: 'uint256',
+      },
+    ],
+    name: 'stakeStables',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'amountOut',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'stakers',
+    outputs: [
+      {
+        internalType: 'address',
         name: '',
         type: 'address',
-        internalType: 'address',
       },
     ],
     stateMutability: 'view',
+    type: 'function',
   },
   {
-    type: 'function',
-    name: 'stakersCount',
     inputs: [],
+    name: 'stakersCount',
     outputs: [
       {
+        internalType: 'uint256',
         name: '',
         type: 'uint256',
-        internalType: 'uint256',
       },
     ],
     stateMutability: 'view',
+    type: 'function',
   },
   {
-    type: 'function',
-    name: 'transferOwnership',
     inputs: [
       {
+        internalType: 'address',
         name: 'newOwner',
         type: 'address',
-        internalType: 'address',
       },
     ],
+    name: 'transferOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
-    type: 'function',
+    inputs: [],
     name: 'unstakeStables',
-    inputs: [],
     outputs: [],
     stateMutability: 'nonpayable',
-  },
-  {
-    // legacy
     type: 'function',
-    name: 'unstake',
-    inputs: [],
-    outputs: [],
-    stateMutability: 'nonpayable',
   },
   {
-    type: 'function',
-    name: 'usdc',
-    inputs: [],
-    outputs: [
-      {
-        name: '',
-        type: 'address',
-        internalType: 'contract IERC20',
-      },
-    ],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'usdt',
-    inputs: [],
-    outputs: [
-      {
-        name: '',
-        type: 'address',
-        internalType: 'contract IERC20',
-      },
-    ],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'weth',
-    inputs: [],
-    outputs: [
-      {
-        name: '',
-        type: 'address',
-        internalType: 'contract IWETH',
-      },
-    ],
-    stateMutability: 'view',
-  },
-  {
-    type: 'event',
-    name: 'OwnershipTransferred',
     inputs: [
       {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'unstakeUserFunds',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'usdc',
+    outputs: [
+      {
+        internalType: 'contract IERC20',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'usdt',
+    outputs: [
+      {
+        internalType: 'contract IERC20',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'weth',
+    outputs: [
+      {
+        internalType: 'contract IWETH',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
         name: 'previousOwner',
         type: 'address',
-        indexed: true,
-        internalType: 'address',
       },
       {
+        indexed: true,
+        internalType: 'address',
         name: 'newOwner',
         type: 'address',
-        indexed: true,
-        internalType: 'address',
       },
     ],
-    anonymous: false,
+    name: 'OwnershipTransferred',
+    type: 'event',
   },
   {
-    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
     name: 'SuccessfulStaked',
-    inputs: [
-      {
-        name: 'user',
-        type: 'address',
-        indexed: true,
-        internalType: 'address',
-      },
-      {
-        name: 'amount',
-        type: 'uint256',
-        indexed: false,
-        internalType: 'uint256',
-      },
-    ],
-    anonymous: false,
-  },
-  {
     type: 'event',
-    name: 'SuccessfulUnstake',
+  },
+  {
+    anonymous: false,
     inputs: [
       {
-        name: 'user',
-        type: 'address',
         indexed: true,
         internalType: 'address',
+        name: 'user',
+        type: 'address',
       },
       {
-        name: 'amount',
-        type: 'uint256',
         indexed: false,
         internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
       },
     ],
-    anonymous: false,
+    name: 'SuccessfulUnstake',
+    type: 'event',
   },
   {
-    type: 'error',
-    name: 'Main__TransferFailed',
     inputs: [],
+    name: 'Main__activeStakingPresent',
+    type: 'error',
   },
   {
-    type: 'error',
+    inputs: [],
     name: 'Main__amountMustBeGreaterThanZero',
-    inputs: [],
+    type: 'error',
   },
   {
-    type: 'error',
+    inputs: [],
     name: 'Main__stakingBalanceMustBeGreaterThanZero',
-    inputs: [],
+    type: 'error',
   },
   {
+    inputs: [],
+    name: 'Main__transferFailed',
     type: 'error',
-    name: 'OwnableInvalidOwner',
+  },
+  {
     inputs: [
       {
+        internalType: 'address',
         name: 'owner',
         type: 'address',
-        internalType: 'address',
       },
     ],
+    name: 'OwnableInvalidOwner',
+    type: 'error',
   },
   {
-    type: 'error',
-    name: 'OwnableUnauthorizedAccount',
     inputs: [
       {
+        internalType: 'address',
         name: 'account',
         type: 'address',
-        internalType: 'address',
       },
     ],
+    name: 'OwnableUnauthorizedAccount',
+    type: 'error',
   },
 ]

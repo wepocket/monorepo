@@ -1,9 +1,9 @@
 import { erc20Abi, Hash, PublicClient, WalletClient } from 'viem'
 
 import { getSigner, getViemProvider } from '../viem'
-import { LEGACY_WEPOCKET_CONTROLLER_ADDRESS, WEPOCKET_CONTROLLER_ABI, WEPOCKET_CONTROLLER_ADDRESS } from './constants'
-import { fromReadableAmount } from '../uniswap/conversion'
-import { USDT_TOKEN_ARB } from '../uniswap/constants'
+import { StakingType, WEPOCKET_CONTROLLER_ABI, WEPOCKET_CONTROLLER_ADDRESS } from './constants'
+import { fromReadableAmount, toReadableAmount } from '../uniswap/conversion'
+import { USDT_TOKEN_ARB, USDC_TOKEN_ARB } from '../uniswap/constants'
 import { TransactionState } from '../uniswap/trading'
 
 export async function stakeFunds({
@@ -46,22 +46,48 @@ export async function stakeFunds({
   }
 }
 
+export type StakingStatus = {
+  isUserStaking: boolean
+  stakingType: StakingType
+  stakingBalance: number | string
+}
+
+export const getUserStakingState = async ({ address, client }: { address: `0x${string}`; client?: PublicClient }) => {
+  const provider = client || getViemProvider()
+
+  const r = await provider.readContract({
+    address: WEPOCKET_CONTROLLER_ADDRESS,
+    abi: WEPOCKET_CONTROLLER_ABI,
+    functionName: 'isUserStaking',
+    args: [address],
+  })
+  const [isUserStaking, stakingType, stakingBalance] = r as [boolean, StakingType, bigint]
+
+  return {
+    isUserStaking,
+    stakingType,
+    stakingBalance: toReadableAmount(Number(stakingBalance), USDC_TOKEN_ARB.decimals),
+  } as StakingStatus
+}
+
 export const unstakeFunds = async ({
+  stakingType,
   client,
   walletClient,
 }: {
+  stakingType: StakingType
   client?: PublicClient
   walletClient?: WalletClient
-}) => {
+}): Promise<TransactionState | Hash> => {
   const provider = client || getViemProvider()
   const signer = walletClient || getSigner()
 
   const { request } = await provider.simulateContract({
-    address: LEGACY_WEPOCKET_CONTROLLER_ADDRESS,
+    address: WEPOCKET_CONTROLLER_ADDRESS,
     account: signer.account,
     abi: WEPOCKET_CONTROLLER_ABI,
     args: [],
-    functionName: 'unstake',
+    functionName: stakingType === StakingType.USDC ? 'unstakeStables' : 'unstakeNative',
   })
 
   return await signer.writeContract(request)

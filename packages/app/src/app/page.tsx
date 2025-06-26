@@ -9,11 +9,13 @@ import { usePublicClient, useWalletClient } from 'wagmi'
 import { Token, TradeType } from '@uniswap/sdk-core'
 import { AVAILABLE_TOKENS } from '@/utils/uniswap/constants'
 import { Trade } from '@uniswap/v3-sdk'
+import { arbitrum } from 'viem/chains'
 
 import { getQuote } from '@/utils/uniswap/quote'
 import { createTrade, executeTrade, TransactionState } from '@/utils/uniswap/trading'
 import { getUserStakingState, stakeFunds, StakingStatus, unstakeFunds } from '@/utils/wepocket'
 import { localhost } from '@/utils/network'
+import { isDevEnv } from '@/utils/wepocket/constants'
 
 export default function Home() {
   const [tokenIn, setTokenIn] = useState<Token>()
@@ -24,7 +26,7 @@ export default function Home() {
   const [txHash, setTxHash] = useState<`0x${string}` | TransactionState>()
   const [txHashStake, setTxHashStake] = useState<`0x${string}` | TransactionState>()
   const [userStakingState, setUserStakingState] = useState<StakingStatus | undefined>()
-  const client = usePublicClient({ chainId: localhost.id })
+  const client = usePublicClient({ chainId: isDevEnv ? arbitrum.id : localhost.id })
 
   const { data: walletClient } = useWalletClient()
 

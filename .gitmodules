@@ -12,3 +12,9 @@
 	url = https://github.com/PaulRBerg/prb-test
 [submodule "lib/prb-test"]
 	branch = release-v0
+[submodule "packages/foundry/lib/chainlink-evm"]
+	path = packages/foundry/lib/chainlink-evm
+	url = https://github.com/smartcontractkit/chainlink-evm
+[submodule "packages/foundry/lib/chainlink-ccip"]
+	path = packages/foundry/lib/chainlink-ccip
+	url = https://github.com/smartcontractkit/chainlink-ccip

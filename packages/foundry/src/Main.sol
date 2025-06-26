@@ -3,9 +3,13 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@chainlink/contracts-ccip/contracts/applications/CCIPReceiver.sol";
+import "@chainlink/contracts-ccip/contracts/libraries/Client.sol";
+import "@chainlink/contracts-ccip/contracts/interfaces/IRouterClient.sol";
+import "@chainlink/contracts/src/v0.8/shared/interfaces/LinkTokenInterface.sol";
 
 
-contract Main is Ownable {
+contract Main is Ownable, CCIPReceiver {
     IWETH public immutable weth = IWETH(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1);
     IERC20 public immutable usdt = IERC20(0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9);
     IERC20 public immutable usdc = IERC20(0xaf88d065e77c8cC2239327C5EDb3A432268e5831);
@@ -18,6 +22,8 @@ contract Main is Ownable {
     error Main__stakingBalanceMustBeGreaterThanZero();
     error Main__transferFailed();
     error Main__activeStakingPresent();
+    error Main__noAllowListedReceiverPresent();
+    error Main__notEnoughBalance(uint256, uint256);
 
 
 
@@ -36,6 +42,7 @@ contract Main is Ownable {
         StakingType stakingType;
     }
     mapping(address user => StakeInfo) public Stakes;
+    address public allowListedReceiver = address(0);
 
 
 
@@ -44,13 +51,20 @@ contract Main is Ownable {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////*/
     event SuccessfulStaked(address indexed user, uint256 amount);
     event SuccessfulUnstake(address indexed user, uint256 amount);
-
+    event MessageSent(
+        bytes32 indexed messageId,
+        uint64 indexed destinationChainSelector,
+        address receiver,
+        address depositor,
+        Client.EVMTokenAmount tokenAmount,
+        uint256 fees
+    );
 
 
     /*/////////////////////////////////////////////////////////////////////////////////////////////////////////
                                             Constructor
     /////////////////////////////////////////////////////////////////////////////////////////////////////////*/
-    constructor() Ownable(msg.sender) {}
+    constructor() Ownable(msg.sender) CCIPReceiver(0x141fa059441E0ca23ce184B6A78bafD2A517DdE8) {}
 
 
 
@@ -186,9 +200,71 @@ contract Main is Ownable {
         amountOut = swapFunds(address(usdt), amountIn);
     }
 
-    function depositToVault(uint256 amount) external onlyOwner {
-        
+    // TODO: remove when going live, just for testing purposes
+    function setAllowListedReceiver(address _receiver) external onlyOwner {
+        allowListedReceiver = _receiver;
     }
+
+    function depositToVault(uint256 amount) external onlyOwner {
+        require(allowListedReceiver != address(0), "Receiver not set");
+
+        sendMessage(allowListedReceiver, amount);
+    }
+
+    function sendMessage(
+        address receiver,
+        uint256 transferAmount
+    ) private returns (bytes32 messageId) {
+        address tokenToTransfer = address(usdc);
+        uint256 _gasLimit = 100_000;
+        uint64 destinationChainSelector = 15971525489660198786;
+
+        Client.EVMTokenAmount memory tokenAmount = Client.EVMTokenAmount({
+            token: tokenToTransfer,
+            amount: transferAmount
+        });
+
+        Client.EVMTokenAmount[]
+            memory tokenAmounts = new Client.EVMTokenAmount[](1);
+        tokenAmounts[0] = tokenAmount;
+
+        address depositor = msg.sender;
+
+        Client.EVM2AnyMessage memory transferCrossUSDC = Client.EVM2AnyMessage({
+            receiver: abi.encode(receiver),
+            data: abi.encode(depositor),
+            tokenAmounts: tokenAmounts,
+            extraArgs: Client._argsToBytes(
+                Client.EVMExtraArgsV1({gasLimit: _gasLimit})
+            ),
+            feeToken: address(0)
+        });
+
+        IRouterClient router = IRouterClient(this.getRouter());
+
+        uint256 fees = router.getFee(destinationChainSelector, transferCrossUSDC);
+        if (fees > address(this).balance)
+            revert Main__notEnoughBalance(address(this).balance, fees);
+
+        IERC20(tokenToTransfer).approve(address(router), transferAmount);
+
+        messageId = router.ccipSend{value: fees}(destinationChainSelector, transferCrossUSDC);
+
+        emit MessageSent(
+            messageId,
+            destinationChainSelector,
+            receiver,
+            depositor,
+            tokenAmount,
+            fees
+        );
+
+        return messageId;
+    }
+
+    function _ccipReceive(
+        Client.Any2EVMMessage memory any2EvmMessage
+    ) internal override {}
 }
 
 interface ISwapRouter {

@@ -13,9 +13,16 @@ import { arbitrum } from 'viem/chains'
 
 import { getQuote } from '@/utils/uniswap/quote'
 import { createTrade, executeTrade, TransactionState } from '@/utils/uniswap/trading'
-import { getUserStakingState, stakeFunds, StakingStatus, unstakeFunds } from '@/utils/wepocket'
+import {
+  depositToVault,
+  getUserStakingState,
+  setStakingReceiverAddress,
+  stakeFunds,
+  StakingStatus,
+  unstakeFunds,
+} from '@/utils/wepocket'
 import { localhost } from '@/utils/network'
-import { isDevEnv } from '@/utils/wepocket/constants'
+import { isDevEnv, WEPOCKET_STAKING_RECEIVER_ADDRESS } from '@/utils/wepocket/constants'
 
 export default function Home() {
   const [tokenIn, setTokenIn] = useState<Token>()
@@ -26,7 +33,7 @@ export default function Home() {
   const [txHash, setTxHash] = useState<`0x${string}` | TransactionState>()
   const [txHashStake, setTxHashStake] = useState<`0x${string}` | TransactionState>()
   const [userStakingState, setUserStakingState] = useState<StakingStatus | undefined>()
-  const client = usePublicClient({ chainId: isDevEnv ? arbitrum.id : localhost.id })
+  const clientArb = usePublicClient({ chainId: isDevEnv ? localhost.id : arbitrum.id })
 
   const { data: walletClient } = useWalletClient()
 
@@ -36,16 +43,16 @@ export default function Home() {
         tokenIn,
         tokenOut,
         amountIn,
-        client,
+        client: clientArb,
       }).then(setQuote)
-  }, [tokenIn, tokenOut, client, amountIn])
+  }, [tokenIn, tokenOut, clientArb, amountIn])
 
   useEffect(() => {
     getUserStakingState({
       address: walletClient?.account.address as `0x${string}`,
-      client,
+      client: clientArb,
     }).then(setUserStakingState)
-  }, [client, walletClient?.account.address])
+  }, [clientArb, walletClient?.account.address])
 
   const onCreateTrade = async () => {
     if (tokenIn && tokenOut && amountIn)
@@ -53,14 +60,14 @@ export default function Home() {
         amountIn,
         tokenIn,
         tokenOut,
-        client,
+        client: clientArb,
         walletClient,
       }).then(setTrade)
   }
 
   const onExecuteTrade = async () => {
     if (tokenIn && tokenOut && amountIn && trade)
-      executeTrade({ amountIn, tokenIn, trade, client, walletClient }).then(setTxHash)
+      executeTrade({ amountIn, tokenIn, trade, client: clientArb, walletClient }).then(setTxHash)
   }
 
   // eslint-disable-next-line
@@ -68,7 +75,7 @@ export default function Home() {
     if (quote)
       stakeFunds({
         amountIn: Number(quote),
-        client,
+        client: clientArb,
         walletClient,
       }).then(setTxHashStake)
   }
@@ -76,17 +83,38 @@ export default function Home() {
   const handleOnStakeFunds = async () => {
     stakeFunds({
       amountIn: 0.01,
-      client,
+      client: clientArb,
       walletClient,
     }).then(setTxHashStake)
   }
 
   const handleOnUnstakeFunds = async () => {
-    if (userStakingState) unstakeFunds({ client, walletClient })
+    if (userStakingState) unstakeFunds({ client: clientArb, walletClient })
+  }
+
+  const handleOnDepositoToVault = async () => {
+    await setStakingReceiverAddress({
+      address: WEPOCKET_STAKING_RECEIVER_ADDRESS,
+      client: clientArb,
+      walletClient,
+    })
+
+    depositToVault({
+      amountIn: 0.1,
+      client: clientArb,
+      walletClient,
+    })
+      .then(console.log)
+      .catch(console.log)
   }
 
   return (
     <div className=''>
+      <p>
+        <button className='bg-gray-500' onClick={handleOnDepositoToVault}>
+          Deposit to Vault (0.1 USDC)
+        </button>
+      </p>
       {userStakingState?.isUserStaking && (
         <p>
           <button className='bg-gray-500' onClick={handleOnUnstakeFunds}>

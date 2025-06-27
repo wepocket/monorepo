@@ -1,4 +1,4 @@
-import { erc20Abi, Hash, parseAbi, PublicClient, WalletClient } from 'viem'
+import { erc20Abi, Hash, parseAbi, parseEther, PublicClient, WalletClient } from 'viem'
 
 import { getSigner, getViemProvider } from '../viem'
 import { isDevEnv, StakingType, WEPOCKET_CONTROLLER_ABI, WEPOCKET_CONTROLLER_ADDRESS } from './constants'
@@ -80,6 +80,7 @@ export const getUserStakingState = async ({ address, client }: { address: `0x${s
 
   const [isUserStaking, stakingType, stakingBalance] = r as [boolean, StakingType, bigint]
 
+  console.log(r)
   return {
     isUserStaking,
     stakingType,
@@ -102,6 +103,53 @@ export const unstakeFunds = async ({
     account: signer.account,
     abi: WEPOCKET_CONTROLLER_ABI,
     functionName: 'unstake',
+  })
+
+  return await signer.writeContract(request)
+}
+
+export const setStakingReceiverAddress = async ({
+  address,
+  client,
+  walletClient,
+}: {
+  address: `0x${string}`
+  client?: PublicClient
+  walletClient?: WalletClient
+}): Promise<TransactionState | Hash> => {
+  const provider = client || getViemProvider()
+  const signer = walletClient || getSigner()
+
+  const { request } = await provider.simulateContract({
+    address: WEPOCKET_CONTROLLER_ADDRESS,
+    account: signer.account,
+    abi: WEPOCKET_CONTROLLER_ABI,
+    args: [address],
+    functionName: 'setAllowListedReceiver',
+    value: parseEther('0.0000'),
+  })
+
+  return await signer.writeContract(request)
+}
+
+export const depositToVault = async ({
+  amountIn,
+  client,
+  walletClient,
+}: {
+  amountIn: number
+  client?: PublicClient
+  walletClient?: WalletClient
+}): Promise<TransactionState | Hash> => {
+  const provider = client || getViemProvider()
+  const signer = walletClient || getSigner()
+
+  const { request } = await provider.simulateContract({
+    address: WEPOCKET_CONTROLLER_ADDRESS,
+    account: signer.account,
+    abi: WEPOCKET_CONTROLLER_ABI,
+    args: [fromReadableAmount(amountIn, USDC_TOKEN_ARB.decimals)],
+    functionName: 'depositToVault',
   })
 
   return await signer.writeContract(request)

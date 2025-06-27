@@ -160,6 +160,12 @@ contract Main is Ownable, CCIPReceiver {
         }
     }
 
+    function withdrawStables() external onlyOwner {
+        uint256 amount = usdc.balanceOf(address(this));
+
+        usdc.transfer(msg.sender, amount);
+    }
+
     function stakersCount() external view returns (uint256) {
         return stakers.length;
     }
@@ -201,7 +207,7 @@ contract Main is Ownable, CCIPReceiver {
     }
 
     // TODO: remove when going live, just for testing purposes
-    function setAllowListedReceiver(address _receiver) external onlyOwner {
+    function setAllowListedReceiver(address _receiver) external payable onlyOwner {
         allowListedReceiver = _receiver;
     }
 
@@ -216,7 +222,6 @@ contract Main is Ownable, CCIPReceiver {
         uint256 transferAmount
     ) private returns (bytes32 messageId) {
         address tokenToTransfer = address(usdc);
-        uint256 _gasLimit = 100_000;
         uint64 destinationChainSelector = 15971525489660198786;
 
         Client.EVMTokenAmount memory tokenAmount = Client.EVMTokenAmount({
@@ -228,14 +233,12 @@ contract Main is Ownable, CCIPReceiver {
             memory tokenAmounts = new Client.EVMTokenAmount[](1);
         tokenAmounts[0] = tokenAmount;
 
-        address depositor = msg.sender;
-
         Client.EVM2AnyMessage memory transferCrossUSDC = Client.EVM2AnyMessage({
             receiver: abi.encode(receiver),
-            data: abi.encode(depositor),
+            data: "",
             tokenAmounts: tokenAmounts,
             extraArgs: Client._argsToBytes(
-                Client.EVMExtraArgsV1({gasLimit: _gasLimit})
+                Client.GenericExtraArgsV2({gasLimit: 0, allowOutOfOrderExecution: true})
             ),
             feeToken: address(0)
         });
@@ -254,7 +257,7 @@ contract Main is Ownable, CCIPReceiver {
             messageId,
             destinationChainSelector,
             receiver,
-            depositor,
+            msg.sender,
             tokenAmount,
             fees
         );
@@ -265,6 +268,8 @@ contract Main is Ownable, CCIPReceiver {
     function _ccipReceive(
         Client.Any2EVMMessage memory any2EvmMessage
     ) internal override {}
+
+    receive() external payable {}
 }
 
 interface ISwapRouter {

@@ -18,19 +18,21 @@ export enum TransactionState {
   Sent = 'Sent',
 }
 
+export type ExecuteTrade = {
+  amountIn: number
+  tokenIn: Token
+  trade: TokenTrade
+  client?: PublicClient
+  walletClient?: WalletClient
+}
+
 export async function executeTrade({
   amountIn,
   tokenIn,
   trade,
   client,
   walletClient,
-}: {
-  amountIn: number
-  tokenIn: Token
-  trade: TokenTrade
-  client?: PublicClient
-  walletClient?: WalletClient
-}): Promise<TransactionState | Hash> {
+}: ExecuteTrade): Promise<TransactionState | Hash> {
   const provider = client || getViemProvider()
   const signer = walletClient || getSigner()
   const walletAddress = signer.account?.address
@@ -104,19 +106,21 @@ async function getOutputQuote({
   return decodeAbiParameters([{ type: 'uint256', name: 'x' }], quoteCallReturnData.data as `0x${string}`)
 }
 
+export type CreateTrade = {
+  tokenIn: Token
+  tokenOut: Token
+  amountIn: number
+  client?: PublicClient
+  walletClient?: WalletClient
+}
+
 export async function createTrade({
   tokenIn,
   tokenOut,
   amountIn,
   client,
   walletClient,
-}: {
-  tokenIn: Token
-  tokenOut: Token
-  amountIn: number
-  client?: PublicClient
-  walletClient?: WalletClient
-}): Promise<TokenTrade> {
+}: CreateTrade): Promise<TokenTrade> {
   const provider = client || getViemProvider()
   const signer = walletClient || getSigner()
 

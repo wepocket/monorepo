@@ -6,15 +6,17 @@ import { fromReadableAmount, toReadableAmount } from '../uniswap/conversion'
 import { USDT_TOKEN_ARB, USDC_TOKEN_ARB, WETH_TOKEN_LOCAL } from '../uniswap/constants'
 import { TransactionState } from '../uniswap/trading'
 
+export type StakeFunds = {
+  amountIn: number
+  client?: PublicClient
+  walletClient?: WalletClient
+}
+
 export async function stakeFunds({
   amountIn: _amountIn,
   client,
   walletClient,
-}: {
-  amountIn: number
-  client?: PublicClient
-  walletClient?: WalletClient
-}): Promise<TransactionState | Hash> {
+}: StakeFunds): Promise<TransactionState | Hash> {
   const provider = client || getViemProvider()
   const signer = walletClient || getSigner()
 
@@ -68,7 +70,9 @@ export type StakingStatus = {
   stakingBalance: number | string
 }
 
-export const getUserStakingState = async ({ address, client }: { address: `0x${string}`; client?: PublicClient }) => {
+export type UserStakingState = { address: `0x${string}`; client?: PublicClient }
+
+export const getUserStakingState = async ({ address, client }: UserStakingState) => {
   const provider = client || getViemProvider()
 
   const r = await provider.readContract({
@@ -88,13 +92,12 @@ export const getUserStakingState = async ({ address, client }: { address: `0x${s
   } as StakingStatus
 }
 
-export const unstakeFunds = async ({
-  client,
-  walletClient,
-}: {
+export type UnstakeFunds = {
   client?: PublicClient
   walletClient?: WalletClient
-}): Promise<TransactionState | Hash> => {
+}
+
+export const unstakeFunds = async ({ client, walletClient }: UnstakeFunds): Promise<TransactionState | Hash> => {
   const provider = client || getViemProvider()
   const signer = walletClient || getSigner()
 
@@ -108,15 +111,17 @@ export const unstakeFunds = async ({
   return await signer.writeContract(request)
 }
 
+export type SetStakingReceiverAddress = {
+  address: `0x${string}`
+  client?: PublicClient
+  walletClient?: WalletClient
+}
+
 export const setStakingReceiverAddress = async ({
   address,
   client,
   walletClient,
-}: {
-  address: `0x${string}`
-  client?: PublicClient
-  walletClient?: WalletClient
-}): Promise<TransactionState | Hash> => {
+}: SetStakingReceiverAddress): Promise<TransactionState | Hash> => {
   const provider = client || getViemProvider()
   const signer = walletClient || getSigner()
 
@@ -132,15 +137,17 @@ export const setStakingReceiverAddress = async ({
   return await signer.writeContract(request)
 }
 
+export type DepositToVault = {
+  amountIn: number
+  client?: PublicClient
+  walletClient?: WalletClient
+}
+
 export const depositToVault = async ({
   amountIn,
   client,
   walletClient,
-}: {
-  amountIn: number
-  client?: PublicClient
-  walletClient?: WalletClient
-}): Promise<TransactionState | Hash> => {
+}: DepositToVault): Promise<TransactionState | Hash> => {
   const provider = client || getViemProvider()
   const signer = walletClient || getSigner()
 

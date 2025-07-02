@@ -61,17 +61,14 @@ export async function getPoolInfo({
   }
 }
 
-export async function getQuote({
-  tokenIn,
-  tokenOut,
-  amountIn,
-  client,
-}: {
+export type GetQuote = {
   tokenIn: Token
   tokenOut: Token
   amountIn: number
   client?: PublicClient
-}): Promise<string> {
+}
+
+export async function getQuote({ tokenIn, tokenOut, amountIn, client }: GetQuote): Promise<string> {
   const provider = client || getViemProvider()
 
   const quoterContract = getContract({

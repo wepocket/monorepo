@@ -17,12 +17,10 @@ export const initBitsoApi = async ({
   const httpMethod = method.toUpperCase()
   const payloadString = payload ? JSON.stringify(payload) : ''
   const signature = crypto
-    .createHmac('sha1', process.env.BITSO_SECRET_KEY as string)
+    .createHmac('sha256', process.env.BITSO_SECRET_KEY as string)
     .update(`${nonce}${httpMethod}${url}${payloadString}`)
     .digest('hex')
   const authHeader = `${process.env.BITSO_API_KEY}:${nonce}:${signature}`
-
-  console.log({ authHeader: `Bitso ${authHeader}`, authHeaderRaw: `${nonce}${httpMethod}${url}${payloadString}` })
 
   const bitsoApi = applyCaseMiddleware(
     axios.create({
@@ -34,33 +32,30 @@ export const initBitsoApi = async ({
     })
   ) as AxiosInstance
 
-  const { data } = await bitsoApi[method](url, payload || '')
+  const { data } = await bitsoApi[method](url, payloadString || undefined)
 
   return { data }
 }
 
 export type AccountDetailsResponse = {
-  success: boolean
-  payload: {
-    totalItems: string
-    totalPages: string
-    currentPage: string
-    pageSize: string
-    response: Array<{
-      clabe: string
-      type: string
-      status: string
-      depositMinimumAmount: number
-      depositMaximumAmounts: {
-        operation: number
-        daily: number
-        weekly: number
-        monthly: number
-      }
-      createdAt: string
-      updatedAt: string
-    }>
-  }
+  totalItems: string
+  totalPages: string
+  currentPage: string
+  pageSize: string
+  response: Array<{
+    clabe: string
+    type: string
+    status: string
+    depositMinimumAmount: number
+    depositMaximumAmounts: {
+      operation: number
+      daily: number
+      weekly: number
+      monthly: number
+    }
+    createdAt: string
+    updatedAt: string
+  }>
 }
 
 export const getAccountDetails = async (): Promise<AccountDetailsResponse> => {
@@ -69,15 +64,12 @@ export const getAccountDetails = async (): Promise<AccountDetailsResponse> => {
     method: 'get',
   })
 
-  return data
+  return data.payload
 }
 
 type CreateCLABEResponse = {
-  success: boolean
-  payload: {
-    clabe: string
-    type: string
-  }
+  clabe: string
+  type: string
 }
 
 export const createCLABE = async (): Promise<CreateCLABEResponse> => {
@@ -86,7 +78,7 @@ export const createCLABE = async (): Promise<CreateCLABEResponse> => {
     method: 'post',
   })
 
-  return data
+  return data.payload
 }
 
 export const storeUserCLABE = async ({ clabe, type }: { clabe: string; type: string }): Promise<void> => {
@@ -94,13 +86,10 @@ export const storeUserCLABE = async ({ clabe, type }: { clabe: string; type: str
 }
 
 export type GetBalanceResponse = {
-  success: boolean
-  payload: {
-    balances: Array<{
-      asset: string
-      balance: number
-    }>
-  }
+  balances: Array<{
+    asset: string
+    balance: number
+  }>
 }
 
 export const getAccountBalance = async (): Promise<GetBalanceResponse> => {
@@ -109,23 +98,20 @@ export const getAccountBalance = async (): Promise<GetBalanceResponse> => {
     method: 'get',
   })
 
-  return data
+  return data.payload
 }
 
 export type TestDepositResponse = {
-  success: boolean
-  payload: {
-    amount: string
-    trackingCode: string
-    trackingKey: string
-    senderClabe: string
-    senderName: string
-    senderCurp: string
-    receiverClabe: string
-    receiverName: string
-    receiverCurp: string
-    createdAt: string
-  }
+  amount: string
+  trackingCode: string
+  trackingKey: string
+  senderClabe: string
+  senderName: string
+  senderCurp: string
+  receiverClabe: string
+  receiverName: string
+  receiverCurp: string
+  createdAt: string
 }
 
 export const testDeposit = async ({
@@ -133,39 +119,33 @@ export const testDeposit = async ({
   receiverClabe,
   receiverName,
   senderName,
-  senderClabe,
 }: {
   amount: number
   receiverClabe: string
   receiverName: string
   senderName: string
-  senderClabe: string
 }): Promise<TestDepositResponse> => {
   const { data } = await initBitsoApi({
-    url: '/mint_platform/spei/test/deposits',
+    url: '/spei/test/deposits',
     method: 'post',
     payload: {
       amount,
-      receiverClabe,
-      receiverName,
-      senderName,
-      senderClabe,
+      receiver_clabe: receiverClabe,
+      receiver_name: receiverName,
+      sender_name: senderName,
     },
   })
 
-  return data
+  return data.payload
 }
 
-export type getAccountBanksResponse = {
-  success: boolean
-  payload: Array<{
-    id: string
-    tag: string
-    recipientLegalName: string
-    clabe: string
-    ownership: string
-  }>
-}
+export type getAccountBanksResponse = Array<{
+  id: string
+  tag: string
+  recipientLegalName: string
+  clabe: string
+  ownership: string
+}>
 
 export const getAccountBanks = async (): Promise<getAccountBanksResponse> => {
   const { data } = await initBitsoApi({
@@ -173,20 +153,17 @@ export const getAccountBanks = async (): Promise<getAccountBanksResponse> => {
     method: 'get',
   })
 
-  return data
+  return data.payload
 }
 
 export type submitRedemptionResponse = {
-  success: boolean
-  payload: {
-    id: string
-    amount: number
-    currency: string
-    transactionType: string
-    summaryStatus: string
-    createdAt: string
-    updatedAt: string
-  }
+  id: string
+  amount: number
+  currency: string
+  transactionType: string
+  summaryStatus: string
+  createdAt: string
+  updatedAt: string
 }
 
 export const submitRedemption = async ({
@@ -203,10 +180,56 @@ export const submitRedemption = async ({
     method: 'post',
     payload: {
       amount,
-      destinationBankAccountId,
+      destination_bank_account_id: destinationBankAccountId,
       asset,
     },
   })
 
-  return data
+  return data.payload
+}
+
+export type GetTransactionsListResponse = {
+  content: Array<{
+    id: string
+    amount: number
+    currency: string
+    transaction_type: string
+    summary_status: string
+    created_at: string
+    updated_at: string
+  }>
+  pageable: {
+    page_number: number
+    page_size: number
+    sort: {
+      empty: boolean
+      sorted: boolean
+      unsorted: boolean
+    }
+    offset: number
+    paged: boolean
+    unpaged: boolean
+  }
+  last: boolean
+  total_pages: number
+  total_elements: number
+  size: number
+  number: number
+  sort: {
+    empty: boolean
+    sorted: boolean
+    unsorted: boolean
+  }
+  first: boolean
+  number_of_elements: number
+  empty: boolean
+}
+
+export const getTransactionsList = async (): Promise<GetTransactionsListResponse> => {
+  const { data } = await initBitsoApi({
+    url: '/mint_platform/v1/transactions',
+    method: 'get',
+  })
+
+  return data.payload
 }

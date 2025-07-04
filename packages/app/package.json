@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@prisma/client": "^6.11.0",
     "@tailwindcss/postcss": "^4",
     "@tsconfig/next": "^2.0.3",
     "@types/node": "^20",

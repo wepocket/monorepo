@@ -3,7 +3,7 @@ import { erc20Abi, Hash, parseAbi, parseEther, PublicClient, WalletClient } from
 import { getSigner, getViemProvider } from '../viem'
 import { isDevEnv, StakingType, WEPOCKET_CONTROLLER_ABI, WEPOCKET_CONTROLLER_ADDRESS } from './constants'
 import { fromReadableAmount, toReadableAmount } from '../uniswap/conversion'
-import { USDT_TOKEN_ARB, USDC_TOKEN_ARB, WETH_TOKEN_LOCAL } from '../uniswap/constants'
+import { USDT_TOKEN_ARB, USDC_TOKEN_ARB, WETH_TOKEN_LOCAL, MXNB_TOKEN_ARB } from '../uniswap/constants'
 import { TransactionState } from '../uniswap/trading'
 
 export type StakeFunds = {
@@ -160,4 +160,44 @@ export const depositToVault = async ({
   })
 
   return await signer.writeContract(request)
+}
+
+export const viemSendMXNB = async ({
+  to,
+  amount,
+  client,
+  walletClient,
+}: {
+  to: `0x${string}`
+  amount: number
+  client?: PublicClient
+  walletClient?: WalletClient
+}): Promise<TransactionState | Hash> => {
+  const provider = client || getViemProvider()
+  const signer = walletClient || getSigner()
+
+  const nonce = await provider.getTransactionCount({ address: signer.account?.address as `0x${string}` })
+
+  const { request } = await provider.simulateContract({
+    address: MXNB_TOKEN_ARB.address as `0x${string}`,
+    account: signer.account,
+    abi: erc20Abi,
+    args: [signer.account?.address as `0x${string}`, fromReadableAmount(amount, MXNB_TOKEN_ARB.decimals)],
+    functionName: 'approve',
+    nonce,
+  })
+
+  const hash = await signer.writeContract(request)
+
+  await provider.waitForTransactionReceipt({ hash })
+
+  const { request: transferRequest } = await provider.simulateContract({
+    address: MXNB_TOKEN_ARB.address as `0x${string}`,
+    account: signer.account,
+    abi: erc20Abi,
+    args: [to, fromReadableAmount(amount, MXNB_TOKEN_ARB.decimals)],
+    functionName: 'transfer',
+  })
+
+  return await signer.writeContract(transferRequest)
 }

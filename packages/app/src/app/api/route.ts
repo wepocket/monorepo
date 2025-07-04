@@ -1,11 +1,14 @@
-import { getAccountDetails } from '@/utils/bitso'
+import { getAccountBanks } from '@/utils/bitso'
+import { AxiosError } from 'axios'
 
 export async function GET() {
+  let r
+
   try {
-    await getAccountDetails()
+    r = await getAccountBanks()
   } catch (_e) {
-    console.log((_e as Date).toJSON())
+    console.log(((_e as AxiosError).toJSON() as { message: string }).message)
   }
 
-  return Response.json({ data: 'Hello World!' })
+  return Response.json({ data: r })
 }

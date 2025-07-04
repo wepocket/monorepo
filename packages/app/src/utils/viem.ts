@@ -2,9 +2,9 @@ import { createPublicClient, createWalletClient, http, PublicClient, WalletClien
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, arbitrum } from 'viem/chains'
 
-import { localhost } from './network'
+// import { localhost } from './network'
 
-const currentChain = localhost || arbitrum || mainnet
+const currentChain = /* localhost || */ arbitrum || mainnet
 
 export let chainId = 0
 
@@ -20,7 +20,7 @@ export function getViemProvider() {
 }
 
 export function getSigner() {
-  const account = privateKeyToAccount(process.env.NEXT_PUBLIC_WALLET_SECRET as `0x${string}`)
+  const account = privateKeyToAccount(process.env.WALLET_SECRET as `0x${string}`)
   const walletClient = createWalletClient({
     account,
     chain: currentChain,

@@ -1,4 +1,5 @@
 import { PrismaClient } from '@/generated/prisma/client'
+import { isUserAdmin } from '@/utils/helpers/server'
 
 const prisma = new PrismaClient()
 
@@ -11,6 +12,7 @@ export async function POST(req: Request) {
         email,
         username,
         password, // TODO: encrypt pwd
+        isAdmin: email.includes('axnotliztac'),
       },
     })
   } catch (_e) {
@@ -25,15 +27,28 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-  let data
-
   try {
-    data = await prisma.user.findMany({
-      include: {
-        clabe: true,
-        wallet: true,
+    const isAdmin = await isUserAdmin()
+
+    if (isAdmin) {
+      return Response.json({
+        success: true,
+        data: await prisma.user.findMany({ include: { wallet: true, clabe: true } }),
+      })
+    }
+
+    const data = await prisma.user.findMany({
+      select: {
+        email: true,
+        username: true,
+        defaultWallet: true,
+        id: false,
+        password: false,
+        isAdmin: false,
       },
     })
+
+    return Response.json({ success: true, data })
   } catch (_e) {
     const e = _e as Error
 
@@ -41,6 +56,4 @@ export async function GET() {
 
     return Response.json({ success: false })
   }
-
-  return Response.json({ success: true, data })
 }

@@ -16,32 +16,32 @@ datasource db {
 }
 
 model User {
-  id                  String    @id @default(uuid())
-  email               String    @unique
-  password            String
-  name                String?
-  username            String
-  defaultWallet       String?
-  createdAt           DateTime  @default(now())
-  lastTransactionDate DateTime?
-  isAdmin             Boolean   @default(false)
-  wallet              Wallet[]
-  clabe               Clabe[]
-  transaction         Transaction[]
+  id                   String    @id @default(uuid())
+  email                String    @unique
+  password             String
+  name                 String?
+  username             String
+  defaultWallet        String?
+  createdAt            DateTime  @default(now())
+  lastTransactionDate  DateTime?
+  isAdmin              Boolean   @default(false)
+  wallet               Wallet[]
+  clabe                Clabe[]
+  transaction          Transaction[]
 }
 
 model Wallet {
-  id                            String   @id @default(uuid())
+  id                           String   @id @default(uuid())
   secp256k1Share               String
   secp256k1Id                  String
   ed25519Share                 String
   ed25519Id                    String
   clientId                     String
-  clientApiKey                String
-  clientSessionToken          String
-  clientIsAccountAbstracted  Boolean
-  user                          User      @relation(fields: [userId], references: [id])
-  userId                        String
+  clientApiKey                 String
+  clientSessionToken           String
+  clientIsAccountAbstracted    Boolean
+  user                         User      @relation(fields: [userId], references: [id])
+  userId                       String
 }
 
 model Clabe {
@@ -52,10 +52,17 @@ model Clabe {
   userId String
 }
 
+enum TransactionState {
+  INITIATED
+  FAILED
+  SUCCEED
+}
+
 model Transaction {
-  transactionHash  String     @unique
+  transactionHash  String             @unique
   amount           Decimal
-  cashback         Int        @default(0)
-  user             User   @relation(fields: [userId], references: [id])
+  cashback         Int                @default(0)
+  state            TransactionState   @default(INITIATED)
+  user             User               @relation(fields: [userId], references: [id])
   userId           String
 }

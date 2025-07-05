@@ -1,12 +1,12 @@
 import { PrismaClient } from '@/generated/prisma/client'
+import { getUserCookie } from '@/utils/helpers/server'
 import { confirmShares, createClient, createWallet, getWalletAddress } from '@/utils/portalhq'
 
 const prisma = new PrismaClient()
 
-const userId = 'ebc8c7c2-5ee0-462b-9f2a-92300912294b'
-
 export async function POST() {
   try {
+    const userId = await getUserCookie()
     const client = await createClient()
     // return
     // {

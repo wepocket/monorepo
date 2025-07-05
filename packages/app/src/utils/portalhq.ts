@@ -4,6 +4,7 @@ import { TransactionRequest } from 'viem'
 import { arbitrum } from 'viem/chains'
 
 export const PORTALHQ_MPC_API_HOST = 'https://mpc-client.portalhq.io'
+export const RPC_URL = `https://api.portalhq.io/rpc/v1/eip155/${arbitrum.id}`
 
 const portalMpcApi = applyCaseMiddleware(
   axios.create({
@@ -146,7 +147,7 @@ export const sendFunds = async ({
     token,
     to,
     amount,
-    rpcUrl: `https://api.portalhq.io/rpc/v1/eip155/${arbitrum.id}`,
+    rpcUrl: RPC_URL,
   })
 
   return data
@@ -157,7 +158,7 @@ export const signTransaction = async ({ tx, share }: { tx: TransactionRequest; s
     share,
     method: 'eth_sendTransaction',
     params: tx,
-    rpcUrl: 'https://sepolia.infura.io/v3/f6a2916eba63419fb60fdd3b30797ef1',
+    rpcUrl: RPC_URL,
     chainId: `eip155:${arbitrum.id}`,
   })
 }

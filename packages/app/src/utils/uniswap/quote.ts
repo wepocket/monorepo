@@ -5,7 +5,7 @@ import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/I
 import { Token } from '@uniswap/sdk-core'
 
 import { CurrentConfig } from './config'
-import { POOL_FACTORY_CONTRACT_ADDRESS, QUOTER_CONTRACT_ADDRESS } from './constants'
+import { MXNB_TOKEN_ARB, POOL_FACTORY_CONTRACT_ADDRESS, QUOTER_CONTRACT_ADDRESS, USDC_TOKEN_ARB } from './constants'
 
 import { toReadableAmount, fromReadableAmount } from './conversion'
 import { getViemProvider } from '../viem'
@@ -62,13 +62,18 @@ export async function getPoolInfo({
 }
 
 export type GetQuote = {
-  tokenIn: Token
-  tokenOut: Token
+  tokenIn?: Token
+  tokenOut?: Token
   amountIn: number
   client?: PublicClient
 }
 
-export async function getQuote({ tokenIn, tokenOut, amountIn, client }: GetQuote): Promise<string> {
+export async function getQuote({
+  tokenIn = MXNB_TOKEN_ARB,
+  tokenOut = USDC_TOKEN_ARB,
+  amountIn,
+  client,
+}: GetQuote): Promise<string> {
   const provider = client || getViemProvider()
 
   const quoterContract = getContract({

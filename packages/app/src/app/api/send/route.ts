@@ -1,13 +1,11 @@
 import { PrismaClient } from '@/generated/prisma/client'
+import { getUserCookie } from '@/utils/helpers/server'
 import { sendFunds } from '@/utils/portalhq'
 import { MXNB_TOKEN_ARB } from '@/utils/uniswap/constants'
-import { getViemProvider } from '@/utils/viem'
 import { viemSendMXNB } from '@/utils/wepocket'
 import { arbitrum } from 'viem/chains'
 
 const prisma = new PrismaClient()
-
-const userId = 'ebc8c7c2-5ee0-462b-9f2a-92300912294b'
 
 const getUserWallet = async (toUsername: string) => {
   const user = await prisma.user.findFirstOrThrow({
@@ -24,6 +22,7 @@ export async function POST(req: Request) {
   const mockWallet = _mockWallet === 'true'
 
   try {
+    const userId = await getUserCookie()
     const to = _to || (await getUserWallet(toUser))
 
     if (mockWallet) {
@@ -55,10 +54,6 @@ export async function POST(req: Request) {
         to: to as `0x${string}`,
         amount,
       })
-
-      const provider = getViemProvider()
-
-      await provider.waitForTransactionReceipt({ hash: transactionHash as `0x${string}` })
 
       await prisma.transaction.create({
         data: {

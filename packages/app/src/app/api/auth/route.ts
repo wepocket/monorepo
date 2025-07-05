@@ -4,14 +4,28 @@ import { setUserCookie } from '@/utils/helpers/server'
 const prisma = new PrismaClient()
 
 export async function POST(req: Request) {
-  const { id } = await req.json()
+  const { id: _id, email, password } = await req.json()
+
+  let id = _id
 
   try {
-    await prisma.user.findUniqueOrThrow({
-      where: {
-        id,
-      },
-    })
+    if (email && password) {
+      const user = await prisma.user.findUniqueOrThrow({
+        where: {
+          email,
+          password,
+        },
+      })
+
+      id = user.id
+    } else {
+      await prisma.user.findUniqueOrThrow({
+        where: {
+          id,
+          isAdmin: true,
+        },
+      })
+    }
 
     await setUserCookie(id)
   } catch (_e) {

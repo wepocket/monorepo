@@ -233,3 +233,31 @@ export const getTransactionsList = async (): Promise<GetTransactionsListResponse
 
   return data.payload
 }
+
+export const withdrawFundsMXNMXNB = async ({
+  address,
+  amount,
+  asset = 'MXNB',
+  blockchain = 'ARBITRUM',
+  compliance,
+}: {
+  address: string
+  amount: number
+  asset?: string
+  blockchain?: string
+  compliance?: unknown
+}): Promise<void> => {
+  const r = await initBitsoApi({
+    url: '/mint_platform/v1/withdrawals',
+    method: 'post',
+    payload: {
+      address,
+      amount,
+      asset,
+      blockchain,
+      compliance: compliance || {},
+    },
+  })
+
+  console.log(r.data)
+}

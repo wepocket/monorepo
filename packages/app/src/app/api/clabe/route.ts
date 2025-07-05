@@ -1,12 +1,12 @@
 import { PrismaClient } from '@/generated/prisma/client'
 import { createCLABE } from '@/utils/bitso'
+import { getUserCookie } from '@/utils/helpers/server'
 
 const prisma = new PrismaClient()
 
-const userId = 'ebc8c7c2-5ee0-462b-9f2a-92300912294b'
-
 export async function POST() {
   try {
+    const userId = await getUserCookie()
     const { clabe, type } = await createCLABE()
 
     await prisma.clabe.create({

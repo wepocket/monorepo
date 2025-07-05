@@ -3,7 +3,13 @@ import { Account, decodeAbiParameters, erc20Abi, Hash, PublicClient, WalletClien
 
 import { getSigner, getViemProvider } from '../viem'
 import { fromReadableAmount } from './conversion'
-import { MAX_FEE_PER_GAS, MAX_PRIORITY_FEE_PER_GAS, SWAP_ROUTER_ADDRESS } from './constants'
+import {
+  MAX_FEE_PER_GAS,
+  MAX_PRIORITY_FEE_PER_GAS,
+  MXNB_TOKEN_ARB,
+  SWAP_ROUTER_ADDRESS,
+  USDT_TOKEN_ARB,
+} from './constants'
 import { getPoolInfo } from './quote'
 import { Pool, Route, SwapOptions, SwapQuoter, SwapRouter, Trade } from '@uniswap/v3-sdk'
 import { CurrentConfig } from './config'
@@ -20,7 +26,7 @@ export enum TransactionState {
 
 export type ExecuteTrade = {
   amountIn: number
-  tokenIn: Token
+  tokenIn?: Token
   trade: TokenTrade
   client?: PublicClient
   walletClient?: WalletClient
@@ -28,7 +34,7 @@ export type ExecuteTrade = {
 
 export async function executeTrade({
   amountIn,
-  tokenIn,
+  tokenIn = MXNB_TOKEN_ARB,
   trade,
   client,
   walletClient,
@@ -107,16 +113,16 @@ async function getOutputQuote({
 }
 
 export type CreateTrade = {
-  tokenIn: Token
-  tokenOut: Token
+  tokenIn?: Token
+  tokenOut?: Token
   amountIn: number
   client?: PublicClient
   walletClient?: WalletClient
 }
 
 export async function createTrade({
-  tokenIn,
-  tokenOut,
+  tokenIn = MXNB_TOKEN_ARB,
+  tokenOut = USDT_TOKEN_ARB,
   amountIn,
   client,
   walletClient,

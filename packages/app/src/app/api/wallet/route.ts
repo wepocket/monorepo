@@ -56,5 +56,23 @@ export async function POST() {
 }
 
 export async function GET() {
-  return Response.json({ success: true })
+  try {
+    const userId = await getUserCookie()
+    const { defaultWallet } = await prisma.user.findUniqueOrThrow({
+      where: {
+        id: userId,
+      },
+      select: {
+        defaultWallet: true,
+      },
+    })
+
+    return Response.json({ success: true, data: { defaultWallet } })
+  } catch (_e) {
+    const e = _e as Error
+
+    console.log(e.message)
+
+    return Response.json({ success: false })
+  }
 }

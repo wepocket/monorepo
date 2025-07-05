@@ -1,17 +1,22 @@
 import { getAccountDetails } from '@/utils/bitso'
+import { isUserAdmin } from '@/utils/helpers/server'
 
 export async function GET() {
-  let data
-
   try {
-    data = await getAccountDetails()
+    const isAdmin = await isUserAdmin()
+
+    if (isAdmin) {
+      const data = await getAccountDetails()
+
+      return Response.json({ success: true, data })
+    } else {
+      return Response.json({ success: false }, { status: 401 })
+    }
   } catch (_e) {
     const e = _e as Error
 
     console.log(e.message)
 
-    return Response.json({ success: false })
+    return Response.json({ success: false }, { status: 500 })
   }
-
-  return Response.json({ success: true, data })
 }

@@ -28,21 +28,6 @@ const portalApi = applyCaseMiddleware(
   })
 )
 
-type CreateClientResponse = {
-  id: string
-  clientApiKey: string
-  clientSessionToken: string
-  isAccountAbstracted: boolean
-}
-
-export const createClient = async (): Promise<CreateClientResponse> => {
-  const { data } = await portalApi.post('/v3/custodians/clients', {
-    isAccountAbstracted: true,
-  })
-
-  return data
-}
-
 export type CreateWalletResponse = {
   SECP256K1: {
     share: string

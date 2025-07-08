@@ -1,4 +1,8 @@
-import { testDeposit } from '@/utils/bitso'
+import { PrismaClient } from '@/generated/prisma'
+import { getDeposits, testDeposit } from '@/utils/bitso'
+import { getUserCookie } from '@/utils/helpers/server'
+
+const prisma = new PrismaClient()
 
 export async function POST(req: Request) {
   const { receiverClabe, receiverName, senderName, amount } = await req.json()
@@ -21,4 +25,24 @@ export async function POST(req: Request) {
   }
 
   return Response.json({ success: true, data })
+}
+
+export async function GET() {
+  const userId = await getUserCookie()
+
+  const clabes = await prisma.clabe.findMany({
+    where: {
+      userId,
+    },
+  })
+
+  const deposits = []
+
+  for (const clabe of clabes) {
+    const r = await getDeposits({ clabe: clabe.clabe })
+
+    r.response.map(deposits.push)
+  }
+
+  return Response.json({ success: true, data: deposits })
 }

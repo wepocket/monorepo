@@ -93,6 +93,13 @@ export type GetBalanceResponse = {
 }
 
 export const getAccountBalance = async (): Promise<GetBalanceResponse> => {
+  // const { data: _data } = await initBitsoApi({
+  //   url: '/mint_platform/v1/funding_details/crypto?asset=mxnbj&network=arbitrum',
+  //   method: 'get',
+  // })
+
+  // console.log('----', _data)
+
   const { data } = await initBitsoApi({
     url: '/mint_platform/v1/balances',
     method: 'get',
@@ -260,4 +267,40 @@ export const withdrawFundsMXNMXNB = async ({
   })
 
   console.log(r.data)
+}
+
+export type GetDepositsResponse = {
+  total_items: string
+  total_pages: string
+  current_page: string
+  page_size: string
+  response: Array<{
+    fid: string
+    deposit_id: string
+    sender_clabe: string
+    receiver_clabe: string
+    status: string
+    amount: string
+    currency: string
+    details: {
+      sender_name: string
+      sender_bank: string
+      clave: string
+      clave_rastreo: string
+      numeric_reference: string
+      concepto: string
+      cep_link: string
+    }
+    created_at: string
+    updated_at: string
+  }>
+}
+
+export const getDeposits = async ({ clabe }: { clabe: string }): Promise<GetDepositsResponse> => {
+  const { data } = await initBitsoApi({
+    url: `/spei/v1/deposits?receiver_clabe=${clabe}`,
+    method: 'get',
+  })
+
+  return data.payload
 }

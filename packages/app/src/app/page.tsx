@@ -1,12 +1,24 @@
 'use client'
 
+import { DisplayBalance } from '@/components/DisplayBalance'
+import { DisplayTransactions } from '@/components/DisplayTransactions'
+import { SendFunds } from '@/components/SendFunds'
+import { SignIn } from '@/components/SignIn'
+
 // import { EXAMPLE_ITEMS } from './examples/examples'
 
 // import { CardList } from '@/components/CardList'
 // import { SITE_DESCRIPTION, SITE_NAME } from '@/utils/site'
 
 export default function Home() {
-  return <div className=''></div>
+  return (
+    <>
+      <SignIn />
+      <DisplayBalance />
+      <DisplayTransactions />
+      <SendFunds />
+    </>
+  )
 
   // return (
   //   <>

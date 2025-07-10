@@ -19,12 +19,13 @@ export function getViemProvider() {
   return publicClient as PublicClient
 }
 
+export const localAccount = privateKeyToAccount(process.env.WALLET_SECRET as `0x${string}`)
+
 export function getSigner() {
-  const account = privateKeyToAccount(process.env.WALLET_SECRET as `0x${string}`)
   const walletClient = createWalletClient({
-    account,
+    account: localAccount,
     chain: currentChain,
-    transport: http(),
+    transport: http('https://arb-mainnet.g.alchemy.com/v2/DYzsOyhx-UXoobEFfQGznMgsQS34MZhk'),
   })
 
   return walletClient as WalletClient

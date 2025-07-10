@@ -1,5 +1,5 @@
 import { PrismaClient } from '@/generated/prisma'
-import { getDeposits, testDeposit } from '@/utils/bitso'
+import { getDeposits, GetDepositsResponse, testDeposit } from '@/utils/bitso'
 import { getUserCookie } from '@/utils/helpers/server'
 
 const prisma = new PrismaClient()
@@ -36,12 +36,16 @@ export async function GET() {
     },
   })
 
-  const deposits = []
+  const deposits: GetDepositsResponse['response'] = []
 
   for (const clabe of clabes) {
     const r = await getDeposits({ clabe: clabe.clabe })
 
-    r.response.map(deposits.push)
+    const _deposits = r.response || []
+
+    for (const deposit of _deposits) {
+      deposits.push(deposit)
+    }
   }
 
   return Response.json({ success: true, data: deposits })

@@ -3,8 +3,8 @@ import axios from 'axios'
 
 export let USE_SIGN_IN: string[]
 
-export const useSignIn = ({ id, password, username }: { id: string; password: string; username: string }) => {
-  USE_SIGN_IN = ['/signIn', id, password, username]
+export const useSignIn = ({ id, password, email }: { id?: string; password: string; email: string }) => {
+  USE_SIGN_IN = ['/signIn', id || '', password, email]
 
   const q = useMutation({
     mutationKey: USE_SIGN_IN,
@@ -12,7 +12,7 @@ export const useSignIn = ({ id, password, username }: { id: string; password: st
       const { data } = await axios.post('/api/auth', {
         id,
         password,
-        username,
+        email,
       })
 
       return data

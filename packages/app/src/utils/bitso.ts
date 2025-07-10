@@ -88,7 +88,7 @@ export const storeUserCLABE = async ({ clabe, type }: { clabe: string; type: str
 export type GetBalanceResponse = {
   balances: Array<{
     asset: string
-    balance: number
+    available: number
   }>
 }
 
@@ -270,29 +270,29 @@ export const withdrawFundsMXNMXNB = async ({
 }
 
 export type GetDepositsResponse = {
-  total_items: string
-  total_pages: string
-  current_page: string
-  page_size: string
+  totalItems: string
+  totalPages: string
+  currentPage: string
+  pageSize: string
   response: Array<{
     fid: string
-    deposit_id: string
-    sender_clabe: string
-    receiver_clabe: string
+    depositId: string
+    senderClabe: string
+    receiverClabe: string
     status: string
     amount: string
     currency: string
     details: {
-      sender_name: string
-      sender_bank: string
+      senderName: string
+      senderBank: string
       clave: string
-      clave_rastreo: string
-      numeric_reference: string
+      claveRastreo: string
+      numericReference: string
       concepto: string
-      cep_link: string
+      cepLink: string
     }
-    created_at: string
-    updated_at: string
+    createdAt: string
+    updatedAt: string
   }>
 }
 

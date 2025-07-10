@@ -1,36 +1,34 @@
 import { PrismaClient } from '@/generated/prisma/client'
+import { createWallet } from '@/utils/alchemyWallet'
 import { getUserCookie } from '@/utils/helpers/server'
-import { confirmShares, createWallet, getWalletAddress } from '@/utils/portalhq'
+// import { confirmShares, createWallet, getWalletAddress } from '@/utils/portalhq'
 
 const prisma = new PrismaClient()
 
-export async function POST() {
+export async function POST(req: Request) {
+  const { email } = await req.json()
+
   try {
     const userId = await getUserCookie()
+    const user = await prisma.user.findUnique({ where: { email } })
 
-    const { SECP256K1, ED25519 } = await createWallet()
-    const wallet = await getWalletAddress()
-    const defaultWallet = wallet.metadata.namespaces.eip155.address
+    if (user?.defaultWallet) throw new Error('Wallet already registerded for current user.')
+
+    const { address } = await createWallet({ email })
 
     await prisma.wallet.create({
       data: {
-        address: defaultWallet,
-        secp256k1Id: SECP256K1.id,
-        secp256k1Share: SECP256K1.share,
-        ed25519Id: ED25519.id,
-        ed25519Share: ED25519.share,
+        address,
         userId,
       },
     })
-
-    await confirmShares(SECP256K1.id, ED25519.id)
 
     await prisma.user.update({
       where: {
         id: userId,
       },
       data: {
-        defaultWallet,
+        defaultWallet: address,
       },
     })
   } catch (_e) {

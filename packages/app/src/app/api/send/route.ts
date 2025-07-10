@@ -1,33 +1,50 @@
 import { PrismaClient } from '@/generated/prisma/client'
+import { sendFunds } from '@/utils/alchemyWallet'
 import { getUserCookie } from '@/utils/helpers/server'
-import { sendFunds } from '@/utils/portalhq'
-import { MXNB_TOKEN_ARB } from '@/utils/uniswap/constants'
+
 import { viemSendMXNB } from '@/utils/wepocket'
-import { arbitrum } from 'viem/chains'
 
 const prisma = new PrismaClient()
 
-const getUserWallet = async (toUsername: string) => {
+const getUserId = async ({ toId, toUsername }: { toId: string; toUsername: string }) => {
+  const where = {
+    username: undefined,
+    id: undefined,
+  } as {
+    username: string | undefined
+    id: string | undefined
+  }
+
+  if (toUsername) {
+    where.username = toUsername
+  }
+
+  if (toId) {
+    where.id = toId
+  }
+
   const user = await prisma.user.findFirstOrThrow({
-    where: {
-      username: toUsername,
-    },
+    where,
   })
 
-  return user.defaultWallet
+  if (!user.defaultWallet) {
+    throw new Error('User has no default wallet.')
+  }
+
+  return user
 }
 
 export async function POST(req: Request) {
-  const { to: _to, toUser, amount, mockWallet: _mockWallet } = await req.json()
-  const mockWallet = _mockWallet === 'true'
+  const { toId, toUsername, amount, mockWallet: _mockWallet } = await req.json()
+  const mockWallet = _mockWallet === true
 
   try {
     const userId = await getUserCookie()
-    const to = _to || (await getUserWallet(toUser))
+    const to = await getUserId({ toUsername, toId })
 
     if (mockWallet) {
       const transactionHash = await viemSendMXNB({
-        to: to as `0x${string}`,
+        to: to.defaultWallet as `0x${string}`,
         amount,
       })
 
@@ -35,34 +52,23 @@ export async function POST(req: Request) {
         data: {
           transactionHash,
           amount,
-          userId,
+          senderId: userId,
+          recipientId: to.id,
         },
       })
 
       return Response.json({ success: true, data: { transactionHash } })
     } else {
-      const { secp256k1Share } = await prisma.wallet.findFirstOrThrow({
-        where: {
-          userId,
-        },
-      })
-
-      const { transactionHash } = await sendFunds({
-        share: secp256k1Share,
-        chain: arbitrum.id.toString(),
-        token: MXNB_TOKEN_ARB.address as `0x${string}`,
-        to: to as `0x${string}`,
-        amount,
-      })
+      const { transactionHash } = await sendFunds({ to: to.defaultWallet as `0x${string}`, amount })
 
       await prisma.transaction.create({
         data: {
           transactionHash,
           amount,
-          userId,
+          senderId: userId,
+          recipientId: to.id,
         },
       })
-
       return Response.json({ success: true, data: { transactionHash } })
     }
   } catch (_e) {
@@ -70,7 +76,7 @@ export async function POST(req: Request) {
 
     console.log(e.message)
 
-    return Response.json({ success: false })
+    return Response.json({ success: false, error: e.message }, { status: 500 })
   }
 }
 

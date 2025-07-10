@@ -20,6 +20,8 @@ export async function POST() {
         userId,
       },
     })
+
+    return Response.json({ success: true, data: { clabe, type } })
   } catch (_e) {
     const e = _e as Error
 
@@ -27,8 +29,6 @@ export async function POST() {
 
     return Response.json({ success: false }, { status: 500 })
   }
-
-  return Response.json({ success: true })
 }
 
 export async function GET() {

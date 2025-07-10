@@ -182,6 +182,7 @@ export const getCallStatus = async ({ callId }: { callId: string }): Promise<Get
 
 export const sendFunds = async ({ to, amount }: { to: `0x${string}`; amount: number }) => {
   const { accountAddress } = await requestAccount()
+
   const { result, error } = await prepareCalls({
     accountAddress,
     to,
@@ -189,7 +190,7 @@ export const sendFunds = async ({ to, amount }: { to: `0x${string}`; amount: num
   })
 
   if (error) {
-    throw new Error(error.message)
+    throw new Error(`${accountAddress}: ${error.message}`)
   }
 
   const signature = await localAccount.signMessage({

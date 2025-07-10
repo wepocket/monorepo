@@ -2,8 +2,8 @@ import { useSendFunds } from '@/app/hooks/useSendFunds'
 
 export const SendFunds = () => {
   const { mutate /* , isPending, data, error */ } = useSendFunds({
-    toUsername: 'axnotliztac+113',
-    amount: 0.1,
+    toUsername: 'axnotliztac113',
+    amount: 10,
   })
 
   return (

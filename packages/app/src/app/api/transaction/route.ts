@@ -4,23 +4,29 @@ import { getUserCookie } from '@/utils/helpers/server'
 const prisma = new PrismaClient()
 
 export async function GET() {
-  const senderId = await getUserCookie()
+  const userId = await getUserCookie()
+
   try {
-    const transactions = await prisma.transaction.findMany({
+    const transactions = await prisma.balanceTransaction.findMany({
       where: {
-        senderId,
+        OR: [
+          {
+            senderId: userId,
+          },
+          {
+            recipientId: userId,
+          },
+        ],
       },
       include: {
         sender: {
           select: {
             username: true,
-            defaultWallet: true,
           },
         },
         recipient: {
           select: {
             username: true,
-            defaultWallet: true,
           },
         },
       },

@@ -3,7 +3,7 @@ import { useFetchBalance } from '@/app/hooks/useFetchBalance'
 export const DisplayBalance = () => {
   const { data } = useFetchBalance()
 
-  const balance = data?.balances?.[0]
+  const balance = data?.balance
 
-  return <>{balance?.available} MXN</>
+  return <>{balance} MXN</>
 }

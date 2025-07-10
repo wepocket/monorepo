@@ -20,15 +20,16 @@ model User {
   email                String        @unique
   password             String
   name                 String?
-  username             String
+  username             String        @unique
+  balance              Decimal       @default(0)
   defaultWallet        String?
   createdAt            DateTime      @default(now())
   lastTransactionDate  DateTime?
   isAdmin              Boolean       @default(false)
   wallet               Wallet[]
   clabe                Clabe[]
-  transactionSender    Transaction[] @relation("sender")
-  transactionRecipient Transaction[] @relation("recipient")
+  transactionSender    BalanceTransaction[] @relation("sender")
+  transactionRecipient BalanceTransaction[] @relation("recipient")
 }
 
 model Wallet {
@@ -52,14 +53,35 @@ enum TransactionState {
   SUCCEED
 }
 
-model Transaction {
-  transactionHash String           @unique
-  amount          Decimal
-  cashback        Int              @default(0)
-  state           TransactionState @default(INITIATED)
-  sender          User             @relation("sender", fields: [senderId], references: [id])
-  senderId        String
-  recipient       User             @relation("recipient", fields: [recipientId], references: [id])
-  recipientId     String
-  createdAt       DateTime         @default(now())
+enum TransactionType {
+  DEPOSIT
+  PAYMENT
+  TRANSFER
+  STAKING
+}
+
+// model TransactionDeprecated {
+//  transactionHash String           @unique
+//   amount          Decimal
+//   cashback        Int              @default(0)
+//   state           TransactionState @default(INITIATED)
+//   sender          User             @relation("sender", fields: [senderId], references: [id])
+//   senderId        String
+//   recipient       User             @relation("recipient", fields: [recipientId], references: [id])
+//   recipientId     String
+//   createdAt       DateTime         @default(now())
+// }
+
+model BalanceTransaction {
+  id                   String             @id @default(uuid())
+  amount               Decimal
+  senderPostBalance    Decimal
+  recipientPostBalance Decimal
+  type                 TransactionType
+  depositId            String?
+  sender               User               @relation("sender", fields: [senderId], references: [id])
+  senderId             String
+  recipient            User               @relation("recipient", fields: [recipientId], references: [id])
+  recipientId          String
+  createdAt            DateTime           @default(now())
 }

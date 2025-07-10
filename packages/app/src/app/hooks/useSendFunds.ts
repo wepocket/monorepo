@@ -23,7 +23,7 @@ export const useSendFunds = ({
         toId,
         toUsername,
         amount,
-        mockWallet,
+        // mockWallet,
       })
 
       return data as { success: boolean; data: { transactionHash: string } }

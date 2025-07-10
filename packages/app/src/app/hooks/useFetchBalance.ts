@@ -1,4 +1,3 @@
-import { GetBalanceResponse } from '@/utils/bitso'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
@@ -10,9 +9,9 @@ export const useFetchBalance = () => {
   const q = useQuery({
     queryKey: USE_FETCH_CLABE_BALANCE,
     queryFn: async () => {
-      const { data } = await axios.get('/api/clabe/balance')
+      const { data } = await axios.get('/api/user/balance')
 
-      return data.data as GetBalanceResponse
+      return data.data as { balance: string }
     },
   })
 

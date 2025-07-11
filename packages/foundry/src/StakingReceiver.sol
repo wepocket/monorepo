@@ -2,12 +2,15 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@chainlink/contracts-ccip/contracts/applications/CCIPReceiver.sol";
 import "@chainlink/contracts-ccip/contracts/libraries/Client.sol";
 
+
 contract StakingReceiver is Ownable, CCIPReceiver {
     IERC20 public immutable usdc = IERC20(0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913);
+    IERC4626 public vault;
 
     event MessageReceived(
         bytes32 indexed messageId,
@@ -72,4 +75,17 @@ contract StakingReceiver is Ownable, CCIPReceiver {
     function depositGas() external payable onlyOwner() {}
 
     receive() external payable {}
+
+    // 0x236919F11ff9eA9550A4287696C2FC9e18E6e890
+    function setUpVault(address _vault) external onlyOwner {
+        vault = IERC4626(_vault);
+    }
+
+    function depositVault(uint256 _amount, address _receiver) external {
+        vault.deposit(_amount, _receiver);
+    }
+
+    function withdrawVault(uint256 _amount, address _receiver) external {
+        vault.withdraw(_amount, _receiver, _receiver);
+    }
 }

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@/generated/prisma'
+import { BalanceTransaction, PrismaClient } from '@/generated/prisma'
 import { getUserCookie } from '@/utils/helpers/server'
 
 const prisma = new PrismaClient()
@@ -31,6 +31,11 @@ export async function GET() {
         },
       },
     })
+
+    for (const transaction of transactions) {
+      ;(transaction as unknown as BalanceTransaction & { isIncome: boolean }).isIncome =
+        transaction.recipientId === userId
+    }
 
     return Response.json({ success: true, data: transactions })
   } catch (_e) {

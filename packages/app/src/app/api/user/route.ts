@@ -1,5 +1,5 @@
 import { PrismaClient } from '@/generated/prisma/client'
-import { isUserAdmin } from '@/utils/helpers/server'
+import { getUserCookie, isUserAdmin } from '@/utils/helpers/server'
 
 const prisma = new PrismaClient()
 
@@ -29,15 +29,9 @@ export async function POST(req: Request) {
 export async function GET() {
   try {
     const isAdmin = await isUserAdmin()
+    const userId = await getUserCookie()
 
-    if (isAdmin) {
-      return Response.json({
-        success: true,
-        data: await prisma.user.findMany({ include: { wallet: true, clabe: true } }),
-      })
-    }
-
-    const data = await prisma.user.findMany({
+    const user = await prisma.user.findUniqueOrThrow({
       select: {
         email: true,
         username: true,
@@ -46,9 +40,20 @@ export async function GET() {
         password: false,
         isAdmin: false,
       },
+      where: {
+        id: userId,
+      },
     })
 
-    return Response.json({ success: true, data })
+    if (isAdmin) {
+      return Response.json({
+        success: true,
+        users: await prisma.user.findMany({ include: { wallet: true, clabe: true } }),
+        user,
+      })
+    }
+
+    return Response.json({ success: true, user })
   } catch (_e) {
     const e = _e as Error
 

@@ -38,3 +38,9 @@ export async function POST(req: Request) {
 
   return Response.json({ success: true })
 }
+
+export async function DELETE() {
+  await setUserCookie()
+
+  return Response.json({ success: true })
+}

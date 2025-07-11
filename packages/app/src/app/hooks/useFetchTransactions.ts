@@ -12,7 +12,7 @@ export const useFetchTransactions = () => {
     queryFn: async () => {
       const { data } = await axios.get('/api/transaction')
 
-      return data.data as Array<BalanceTransaction & { sender: User; recipient: User }>
+      return data.data as Array<BalanceTransaction & { sender: User; recipient: User; isIncome: boolean }>
     },
   })
 

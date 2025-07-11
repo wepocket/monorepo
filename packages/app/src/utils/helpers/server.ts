@@ -15,8 +15,14 @@ export const decrypted = async (v: string) => {
   return r
 }
 
-export const setUserCookie = async (value: string) => {
+export const setUserCookie = async (value?: string) => {
   const cookieStore = await cookies()
+
+  if (!value) {
+    cookieStore.delete('user')
+
+    return
+  }
 
   cookieStore.set('user', await encrypted(value))
 }

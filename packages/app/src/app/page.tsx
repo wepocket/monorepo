@@ -6,21 +6,21 @@ import { SendFunds } from '@/components/SendFunds'
 import { SignIn } from '@/components/SignIn'
 
 import { getIsSignedIn } from './hooks/useSignIn'
-import { ReadQR } from '@/components/ReadQR'
 import { Home } from '@/components/Home'
 
 import * as screenLoader from '../assets/screen-loader.json'
 import { useWindowAction_DEV } from './hooks/useWindowAction'
+import { Pay } from '@/components/Pay'
 
 // import { EXAMPLE_ITEMS } from './examples/examples'
 
 // import { CardList } from '@/components/CardList'
 // import { SITE_DESCRIPTION, SITE_NAME } from '@/utils/site'
 
-const screens = [<Home key={0} />, <ReadQR key={1} />, <DisplayQR key={2} />, 'Receive']
+const screens = [<Home key={0} />, <Pay key={1} />, 'Receive']
 
 const Nav = () => {
-  const [screenId, setScreenId] = useState(0)
+  const [screenId, setScreenId] = useState(1)
   const { setAction } = useWindowAction_DEV()
 
   useEffect(() => {

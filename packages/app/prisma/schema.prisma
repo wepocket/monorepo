@@ -30,6 +30,7 @@ model User {
   clabe                Clabe[]
   transactionSender    BalanceTransaction[] @relation("sender")
   transactionRecipient BalanceTransaction[] @relation("recipient")
+  passkey              Passkey?
 }
 
 model Wallet {
@@ -84,4 +85,12 @@ model BalanceTransaction {
   recipient            User               @relation("recipient", fields: [recipientId], references: [id])
   recipientId          String
   createdAt            DateTime           @default(now())
+}
+
+model Passkey {
+  id          String     @id @default(uuid())
+  challenge   String
+  credential  Json?
+  user        User       @relation(fields: [userId], references: [id])
+  userId      String     @unique
 }

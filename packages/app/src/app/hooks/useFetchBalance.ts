@@ -11,7 +11,7 @@ export const useFetchBalance = () => {
     queryFn: async () => {
       const { data } = await axios.get('/api/user/balance')
 
-      return data.data as { balance: string }
+      return data.data as { balance: string } & { stakingBalance: number }
     },
   })
 

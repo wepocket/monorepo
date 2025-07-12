@@ -4,6 +4,7 @@ import { useFetchBalance } from '@/app/hooks/useFetchBalance'
 export const USDollar = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
+  minimumFractionDigits: 2,
 })
 
 export const DisplayBalance = () => {

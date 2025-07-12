@@ -7,7 +7,7 @@ export function Layout(props: PropsWithChildren) {
     <div className='flex flex-col min-h-screen bg-[var(--fondos-bg1,#f1f4f8)]'>
       {false && <Header />}
 
-      <main className='grow py-4 container max-w-3xl mx-auto'>{props.children}</main>
+      <main className='flex flex-col grow w-full py-4 container max-w-3xl mx-auto'>{props.children}</main>
 
       {false && <Footer />}
     </div>

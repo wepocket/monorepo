@@ -43,7 +43,7 @@ export const DisplayTransactions = () => {
             </div>
             <div className="justify-start text-base-p2 text-base font-bold font-['Helvetica']">Ver todo</div>
           </div>
-          <div className="w-80 h-3.5 justify-start text-texto-bt02 text-xs font-normal font-['Helvetica']">
+          <div className="w-full h-3.5 justify-start text-texto-bt02 text-xs font-normal font-['Helvetica']">
             Saldo disponible en tu cuenta
           </div>
           <div className='self-stretch py-[5px] inline-flex justify-center items-center gap-3.5'>
@@ -83,7 +83,7 @@ export const DisplayTransactions = () => {
                     )}
                   </div>
                   <div className="text-right justify-start text-black text-xl font-bold font-['Helvetica']">
-                    {USDollar.format(deposit.amount as unknown as number)}
+                    {USDollar().format(deposit.amount as unknown as number)}
                   </div>
                   <div className='w-6 h-6 px-[5px] flex justify-center items-center gap-2.5 overflow-hidden'>
                     {deposit.isIncome ? (

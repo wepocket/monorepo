@@ -76,6 +76,10 @@ export async function POST(req: Request) {
       throw new Error('Insufficient funds.')
     }
 
+    if (sender.id === to.id) {
+      throw new Error('Cannot send funds to self.')
+    }
+
     const transaction = await prisma.balanceTransaction.create({
       data: {
         amount,
@@ -105,7 +109,7 @@ export async function POST(req: Request) {
       },
     })
 
-    return Response.json({ success: true, data: { transactionId: transaction.id } })
+    return Response.json({ success: true, transaction })
     // }
   } catch (_e) {
     const e = _e as Error

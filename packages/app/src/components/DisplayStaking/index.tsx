@@ -11,7 +11,7 @@ export const DisplayStaking = () => {
           <div className="w-80 h-3.5 justify-start text-base-p2 text-base font-bold font-['Helvetica']">
             Cuenta Crecimiento
           </div>
-          <div className="w-80 h-3.5 justify-start text-Texto-BTO2 text-xs font-normal font-['Helvetica']">
+          <div className="w-full h-3.5 justify-start text-Texto-BTO2 text-xs font-normal font-['Helvetica']">
             Saldo disponible en tu cuenta
           </div>
         </div>
@@ -21,7 +21,8 @@ export const DisplayStaking = () => {
             <div className='self-stretch inline-flex justify-center items-center gap-[5px]'>
               <div className="justify-start text-base-p2 text-xl font-bold font-['Helvetica']">+</div>
               <div className="justify-start text-base-p2 text-xl font-bold font-['Helvetica']">
-                {(data?.stakingBalance || 0) > 0 && USDollar.format(data?.stakingBalance as unknown as number)}
+                {(data?.stakingBalance || 0) > 0 &&
+                  USDollar({ minimumFractionDigits: 3 }).format(data?.stakingBalance as unknown as number)}
               </div>
             </div>
           </div>

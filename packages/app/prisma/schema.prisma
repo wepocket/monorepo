@@ -77,6 +77,7 @@ model BalanceTransaction {
   id                   String             @id @default(uuid())
   amount               Decimal
   senderPostBalance    Decimal
+  concept              String?
   recipientPostBalance Decimal
   type                 TransactionType
   depositId            String?

@@ -8,28 +8,40 @@ import { SignIn } from '@/components/SignIn'
 import { getIsSignedIn } from './hooks/useSignIn'
 import { Home } from '@/components/Home'
 
+import { FaQrcode } from 'react-icons/fa6'
+
+import { Pay } from '@/components/Pay'
+import { PayQR } from '@/components/Pay'
+import { useNavigationState } from '@/utils/navigationState'
 import * as screenLoader from '../assets/screen-loader.json'
 import { useWindowAction_DEV } from './hooks/useWindowAction'
-import { Pay } from '@/components/Pay'
 
-// import { EXAMPLE_ITEMS } from './examples/examples'
-
-// import { CardList } from '@/components/CardList'
-// import { SITE_DESCRIPTION, SITE_NAME } from '@/utils/site'
-
-const screens = [<Home key={0} />, <Pay key={1} />, 'Receive']
+const screens = [<Home key={0} />, <Pay key={1} />, <PayQR key={2} />, 'Receive']
 
 const Nav = () => {
-  const [screenId, setScreenId] = useState(1)
+  const [screenId, setScreenId] = useNavigationState()
   const { setAction } = useWindowAction_DEV()
 
   useEffect(() => {
     setAction('setScreenId', (id) => {
       setScreenId(id as typeof screenId)
     })
-  }, [setScreenId])
+  }, [setAction, setScreenId])
 
-  return screens[screenId]
+  return (
+    <>
+      {screens[screenId]}
+      {screenId === 0 && (
+        <div className='flex justify-center items-center mt-5'>
+          <div className='w-16 h-16 px-[5px] py-2.5 bg-base-s1 rounded-[10px] outline outline-1 outline-offset-[-0.50px] outline-stroke-st2 flex flex-col justify-center items-center overflow-hidden'>
+            <button className='w-6 h-6 relative overflow-hidden' onClick={() => setScreenId(2)}>
+              <FaQrcode className='w-full h-full' size={20} />
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  )
 }
 
 export default function App() {
@@ -56,23 +68,4 @@ export default function App() {
       {false && <SendFunds />}
     </>
   )
-
-  // return (
-  //   <>
-  //     <h2 className='text-2xl mb-2'>{SITE_NAME}</h2>
-  //     <p>{SITE_DESCRIPTION}</p>
-
-  //     {/* Examples are only used for demo purposes. Feel free to delete this section */}
-  //     <div className='mt-4'>
-  //       <h3 className='text-lg mb-2'>Examples</h3>
-  //       <p className='mb-4'>
-  //         The following examples are used for demo purposes and help you bootstrap development. You can find the example
-  //         the main repo at <code>src/app/examples</code>. Feel free to delete this section and the examples folder for
-  //         your own App.
-  //       </p>
-
-  //       <CardList items={EXAMPLE_ITEMS} />
-  //     </div>
-  //   </>
-  // )
 }

@@ -1,36 +1,36 @@
-import { useFetchBalance } from '@/app/hooks/useFetchBalance'
-import { USDollar } from '../DisplayBalance'
-import { useState } from 'react'
-import { authenticatePasskey, registerPasskey } from '@/utils/passkey'
-import axios from 'axios'
-import { useFetchUser } from '@/app/hooks/useFetchUser'
+import { useEffect, useState } from 'react'
 
-export const PaymentForm = ({ paymentRecipient }: { paymentRecipient: string }) => {
+import { useFetchBalance } from '@/app/hooks/useFetchBalance'
+import { useSendFunds } from '@/app/hooks/useSendFunds'
+import { USDollar } from '../DisplayBalance'
+import { BalanceTransaction } from '@/generated/prisma'
+
+export const PaymentForm = ({
+  paymentRecipient,
+  onFundsSent,
+}: {
+  paymentRecipient: string
+  onFundsSent: (v: BalanceTransaction) => void
+}) => {
   const [amount, setAmount] = useState<number>(0)
   const { data } = useFetchBalance()
   const balance = data?.balance
-  const { data: user } = useFetchUser()
+
+  const {
+    mutate: sendFundsMutate,
+    isPending: isSendFundsPending,
+    isSuccess: isSendFundsSuccess,
+    data: sendFundsData,
+  } = useSendFunds({ toUsername: paymentRecipient, amount })
+
+  useEffect(() => {
+    if (isSendFundsSuccess) {
+      onFundsSent(sendFundsData)
+    }
+  }, [onFundsSent, isSendFundsSuccess, sendFundsData])
 
   const handleOnPayment = async () => {
-    const { data } = await axios.post('/api/passkey', {
-      type: 'challenge',
-    })
-
-    if (data.isRegistered === false) {
-      const registration = await registerPasskey(user?.username || 'wepocket', data.challenge)
-
-      await axios.post('/api/passkey', {
-        type: 'verifyRegistration',
-        registration,
-      })
-    } else {
-      const authentication = await authenticatePasskey(data.challenge, data.credential)
-
-      await axios.post('/api/passkey', {
-        type: 'verifyAuthentication',
-        authentication,
-      })
-    }
+    sendFundsMutate()
   }
 
   return (
@@ -65,7 +65,7 @@ export const PaymentForm = ({ paymentRecipient }: { paymentRecipient: string }) 
           </div>
           <div className='inline-flex flex-col justify-start items-start gap-[5px]'>
             <div className="justify-start text-texto-bt02 text-xs font-normal font-['Helvetica']">
-              {USDollar.format(parseFloat(balance || '0') - (amount || 0))}
+              {USDollar().format(parseFloat(balance || '0') - (amount || 0))}
             </div>
           </div>
           <div className='inline-flex flex-col justify-start items-start gap-[5px]'>
@@ -96,13 +96,22 @@ export const PaymentForm = ({ paymentRecipient }: { paymentRecipient: string }) 
       </div>
 
       <div className='mt-20 self-stretch self-stretch px-2.5 inline-flex flex-col justify-center items-center gap-2.5 mx-2.5'>
-        <div className='self-stretch px-[5px] py-6 bg-base-p2 rounded-[10px] flex flex-col justify-center items-center overflow-hidden'>
-          <div
-            onClick={handleOnPayment}
-            className="text-center justify-start text-fondos-bg2 text-base font-normal font-['Helvetica'] leading-none">
-            Pagar
-          </div>
-        </div>
+        <button
+          disabled={isSendFundsPending}
+          className={
+            'self-stretch px-[5px] py-6 bg-base-p2 rounded-[10px] flex flex-col justify-center items-center overflow-hidden ' +
+            `${isSendFundsPending ? 'opacity-60' : ''}`
+          }>
+          {isSendFundsPending ? (
+            <span className='loading loading-spinner loading-sm' />
+          ) : (
+            <div
+              onClick={handleOnPayment}
+              className="text-center justify-start text-fondos-bg2 text-base font-normal font-['Helvetica'] leading-none">
+              Pagar
+            </div>
+          )}
+        </button>
         <div className='self-stretch px-[5px] py-6 bg-base-p2 rounded-[10px] flex flex-col justify-center items-center overflow-hidden'>
           <div className="text-center justify-start text-fondos-bg2 text-base font-normal font-['Helvetica'] leading-none">
             Cancelar

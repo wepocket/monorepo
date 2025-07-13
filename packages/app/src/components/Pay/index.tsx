@@ -1,15 +1,31 @@
 import { FaArrowLeft } from 'react-icons/fa6'
 import { ReadQR } from './ReadQR'
 import { PaymentForm } from './PaymentForm'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useWindowAction_DEV } from '@/app/hooks/useWindowAction'
+import { BalanceTransaction } from '@/generated/prisma'
+import { Receipt } from './Receipt'
+import { PickRecipient } from './PickRecipient'
 
-export const Pay = () => {
+export const PayFactory = (props?: { isQR?: boolean }) => {
   const [flowState, setFlowState] = useState<
     | {
-        paymentRecipient: string
+        paymentRecipient?: string
+        fundsSent?: BalanceTransaction
       }
     | undefined
-  >({ paymentRecipient: 'ramiro' })
+  >()
+  const { setAction } = useWindowAction_DEV()
+
+  useEffect(() => {
+    setAction('setFlowState', (state) => {
+      setFlowState(state as typeof flowState)
+    })
+  }, [setAction, setFlowState])
+
+  const handleOnFundsSent = (transaction: BalanceTransaction) => {
+    setFlowState((s) => ({ ...s, fundsSent: transaction }))
+  }
 
   return (
     <>
@@ -22,10 +38,32 @@ export const Pay = () => {
           </div>
         </div>
         {!flowState?.paymentRecipient && (
-          <ReadQR setPaymentRecipient={(paymentRecipient: string) => setFlowState({ paymentRecipient })} />
+          <>
+            {props?.isQR ? (
+              <ReadQR setPaymentRecipient={(paymentRecipient: string) => setFlowState({ paymentRecipient })} />
+            ) : (
+              <PickRecipient setPaymentRecipient={(paymentRecipient: string) => setFlowState({ paymentRecipient })} />
+            )}
+          </>
         )}
-        {flowState?.paymentRecipient && <PaymentForm paymentRecipient={flowState.paymentRecipient} />}
+        {flowState?.paymentRecipient && !Boolean(flowState.fundsSent) && (
+          <PaymentForm paymentRecipient={flowState.paymentRecipient} onFundsSent={handleOnFundsSent} />
+        )}
+        {flowState?.paymentRecipient && Boolean(flowState.fundsSent) && (
+          <Receipt
+            paymentRecipient={flowState.paymentRecipient}
+            transaction={flowState.fundsSent as BalanceTransaction}
+          />
+        )}
       </div>
     </>
   )
+}
+
+export const Pay = () => {
+  return <PayFactory />
+}
+
+export const PayQR = () => {
+  return <PayFactory isQR={true} />
 }

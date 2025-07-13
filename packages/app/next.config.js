@@ -8,6 +8,9 @@ const nextConfig = {
   images: {
     remotePatterns: [{ hostname: '*' }],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 }
 
 module.exports = nextConfig

@@ -1,8 +1,9 @@
 {
   "extends": "@tsconfig/next/tsconfig.json",
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
     "target": "es6",
     "plugins": [
       {

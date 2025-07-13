@@ -55,9 +55,11 @@ export const DisplayBalance = () => {
               <div className='w-6 h-6 relative overflow-hidden'>
                 <MdOutlineCallReceived className='w-full font-bold' />
               </div>
-              <div className="text-center justify-start text-fondos-bg2 text-base font-normal font-['Helvetica'] leading-none">
+              <button
+                onClick={() => setScreenId(3)}
+                className="text-center justify-start text-fondos-bg2 text-base font-normal font-['Helvetica'] leading-none">
                 Recibir
-              </div>
+              </button>
             </div>
           </div>
         </div>

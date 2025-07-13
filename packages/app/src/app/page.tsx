@@ -15,8 +15,9 @@ import { PayQR } from '@/components/Pay'
 import { useNavigationState } from '@/utils/navigationState'
 import * as screenLoader from '../assets/screen-loader.json'
 import { useWindowAction_DEV } from './hooks/useWindowAction'
+import { ReceiveFunds } from '@/components/ReceiveFunds'
 
-const screens = [<Home key={0} />, <Pay key={1} />, <PayQR key={2} />, 'Receive']
+const screens = [<Home key={0} />, <Pay key={1} />, <PayQR key={2} />, <ReceiveFunds key={3} />]
 
 const Nav = () => {
   const [screenId, setScreenId] = useNavigationState()

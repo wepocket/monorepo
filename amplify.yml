@@ -1,0 +1,32 @@
+version: 1
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - yarn install
+        build:
+          commands:
+            - env | grep -e NEXT_PUBLIC_WALLET_ADDRESS >> packages/app/.env.production
+            - env | grep -e WALLET_SECRET >> packages/app/.env.production
+            - env | grep -e NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID >> packages/app/.env.production
+            - env | grep -e NEXT_PLUBLIC_WEB3_ENV >> packages/app/.env.production
+            - env | grep -e BITSO_API_KEY >> packages/app/.env.production
+            - env | grep -e BITSO_SECRET_KEY >> packages/app/.env.production
+            - env | grep -e DB_URL >> packages/app/.env.production
+            - env | grep -e DB_DIRECT_URL >> packages/app/.env.production
+            - env | grep -e PORTALHQ_API_KEY >> packages/app/.env.production
+            - env | grep -e PORTALHQ_CLIENT_ID >> packages/app/.env.production
+            - env | grep -e ALCHEMY_API_KEY >> packages/app/.env.production
+            - env | grep -e ALCHEMY_GAS_POLICY >> packages/app/.env.production
+            - yarn run build
+      artifacts:
+        baseDirectory: packages/app/.next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - .next/cache/**/*
+          - node_modules/**/*
+      buildPath: /
+    appRoot: packages/app

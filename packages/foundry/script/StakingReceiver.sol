@@ -8,8 +8,8 @@ import "../src/StakingReceiver.sol";
 
 /*
   Deployer: 0x2a1b75f0D91C6cBFe8285d5a8624965CDFdeBd63
-  Deployed to: 0x247D9218f5Cc2086F2A3fB7f4d97fFfBA7f9092f
-  Transaction hash: 0x36e02ae1da79c3650b72d4184afe9358537e3c657b47d3a95efcb91282b2c4af
+  Deployed to: 0x16Ad2fF3Ae8c5527320F44aaE860709e66DE0083
+  Transaction hash: 0xde8dd477573e687fa83b864d68135d94ca39ecda98779b213112cdfc579e1591
 */
 // anvil --fork-url "" --chain-id 639
 // forge script ./script/StakingReceiver.sol:StakingReceiverScript --rpc-url base --broadcast

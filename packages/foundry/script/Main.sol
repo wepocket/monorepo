@@ -8,8 +8,8 @@ import "../src/Main.sol";
 
 /*
   Deployer: 0x2a1b75f0D91C6cBFe8285d5a8624965CDFdeBd63
-  Deployed to: 0x247D9218f5Cc2086F2A3fB7f4d97fFfBA7f9092f
-  Transaction hash: 0x36e02ae1da79c3650b72d4184afe9358537e3c657b47d3a95efcb91282b2c4af
+  Deployed to: 0x1c16De0d19Ad8482a2acF5A00366847dDea97221
+  Transaction hash: 
 */
 // anvil --fork-url "" --chain-id 639
 // forge script ./script/Main.sol:MainScript --rpc-url arbitrum --broadcast

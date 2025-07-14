@@ -17,11 +17,13 @@ export const POST = async (req: Request) => {
     })
 
     if (type === 'challenge') {
-      await prisma.passkey.delete({
-        where: {
-          userId,
-        },
-      })
+      try {
+        await prisma.passkey.delete({
+          where: {
+            userId,
+          },
+        })
+      } catch {}
 
       const challenge = server.randomChallenge()
 

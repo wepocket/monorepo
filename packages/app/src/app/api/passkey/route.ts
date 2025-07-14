@@ -18,7 +18,7 @@ export const POST = async (req: Request) => {
   if (type === 'challenge') {
     const challenge = server.randomChallenge()
 
-    if (Boolean(credentialExists)) {
+    if (Boolean(credentialExists?.credential)) {
       await prisma.passkey.update({
         where: {
           userId,
@@ -39,7 +39,7 @@ export const POST = async (req: Request) => {
     return Response.json({
       success: true,
       challenge,
-      isRegistered: Boolean(credentialExists),
+      isRegistered: Boolean(credentialExists?.credential),
       credential: credentialExists?.credential && JSON.parse(credentialExists?.credential as string),
     })
   }
@@ -51,14 +51,14 @@ export const POST = async (req: Request) => {
     }
     const registrationParsed = await server.verifyRegistration(registration, expected)
 
-    await prisma.passkey.update({
-      where: {
-        userId,
-      },
-      data: {
-        credential: JSON.stringify(registrationParsed.credential),
-      },
-    })
+    // await prisma.passkey.update({
+    //   where: {
+    //     userId,
+    //   },
+    //   data: {
+    //     credential: JSON.stringify(registrationParsed.credential),
+    //   },
+    // })
 
     return Response.json({
       success: true,
@@ -85,4 +85,10 @@ export const POST = async (req: Request) => {
       verified,
     })
   }
+}
+
+export const GET = async () => {
+  console.log(await prisma.passkey.deleteMany())
+
+  return Response.json({ success: true })
 }

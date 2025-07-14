@@ -47,7 +47,7 @@ export const POST = async (req: Request) => {
   if (type === 'verifyRegistration') {
     const expected = {
       challenge: credentialExists?.challenge || '',
-      origin: 'http://localhost:3000',
+      origin: process.env.APP_HOST || 'http://localhost:3000',
     }
     const registrationParsed = await server.verifyRegistration(registration, expected)
 
@@ -69,7 +69,7 @@ export const POST = async (req: Request) => {
   if (type === 'verifyAuthentication') {
     const expected = {
       challenge: credentialExists?.challenge || '',
-      origin: 'http://localhost:3000',
+      origin: process.env.APP_HOST || 'http://localhost:3000',
       userVerified: true,
       counter: -1,
     }

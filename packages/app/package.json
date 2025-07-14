@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint --fix",
-    "wagmi": "wagmi generate"
+    "wagmi": "wagmi generate",
+    "postbuild": "prisma generate"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

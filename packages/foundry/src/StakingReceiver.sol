@@ -66,26 +66,35 @@ contract StakingReceiver is Ownable, CCIPReceiver {
         );
     }
 
-    function withdrawStables() external onlyOwner {
+    function withdrawBalanceStables() external onlyOwner {
         uint256 amount = usdc.balanceOf(address(this));
 
         usdc.transfer(msg.sender, amount);
     }
 
-    function depositGas() external payable onlyOwner() {}
+    function withdrawStables(uint256 _amount) external onlyOwner {
+        usdc.transfer(msg.sender, _amount);
+    }
 
-    receive() external payable {}
-
-    // 0x236919F11ff9eA9550A4287696C2FC9e18E6e890
     function setUpVault(address _vault) external onlyOwner {
         vault = IERC4626(_vault);
     }
 
     function depositVault(uint256 _amount, address _receiver) external {
+        usdc.approve(address(vault), _amount);
+
         vault.deposit(_amount, _receiver);
     }
 
     function withdrawVault(uint256 _amount, address _receiver) external {
         vault.withdraw(_amount, _receiver, _receiver);
     }
+
+    function withdrawGas(uint256 _amount) external onlyOwner {
+        address payable to = payable(msg.sender);
+
+        to.transfer(_amount);
+    }
+
+    receive() external payable {}
 }

@@ -24,7 +24,11 @@ export const setUserCookie = async (value?: string) => {
     return
   }
 
-  cookieStore.set('user', await encrypted(value))
+  const uid = await encrypted(value)
+
+  cookieStore.set('user', uid)
+
+  return uid
 }
 
 export const getUserCookie = async () => {

@@ -17,14 +17,6 @@ export const POST = async (req: Request) => {
     })
 
     if (type === 'challenge') {
-      try {
-        await prisma.passkey.delete({
-          where: {
-            userId,
-          },
-        })
-      } catch {}
-
       const challenge = server.randomChallenge()
 
       if (Boolean(credentialExists?.credential)) {

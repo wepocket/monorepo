@@ -19,7 +19,7 @@ export const POST = async (req: Request) => {
     if (type === 'challenge') {
       const challenge = server.randomChallenge()
 
-      if (Boolean(credentialExists?.credential)) {
+      if (Boolean(credentialExists)) {
         await prisma.passkey.update({
           where: {
             userId,
@@ -40,7 +40,7 @@ export const POST = async (req: Request) => {
       return Response.json({
         success: true,
         challenge,
-        isRegistered: Boolean(credentialExists?.credential),
+        isRegistered: Boolean(credentialExists),
         credential: credentialExists?.credential && JSON.parse(credentialExists?.credential as string),
       })
     }

@@ -1,10 +1,12 @@
 import { useFetchCLABE } from '@/app/hooks/useFetchCLABE'
 import { useFetchUser } from '@/app/hooks/useFetchUser'
+import { useNavigationState } from '@/utils/navigationState'
 import { FaArrowLeft, FaRegCopy } from 'react-icons/fa6'
 
 export const ReceiveFunds = () => {
   const { data } = useFetchCLABE()
   const { data: user } = useFetchUser()
+  const [, goBack] = useNavigationState()
 
   const clabe = (data || [])[0]?.clabe
 
@@ -13,7 +15,7 @@ export const ReceiveFunds = () => {
       <div className='self-stretch px-3.5 py-2.5 bg-white inline-flex justify-start items-center gap-2.5 overflow-hidden w-full'>
         <div className='w-10 h-10 bg-base-p2 rounded-[10px]' />
         <div className="flex-1 justify-start text-black text-base font-bold font-['Helvetica']">Pagar con QR</div>
-        <div className='w-6 h-6 relative overflow-hidden'>
+        <div onClick={() => goBack(0)} className='w-6 h-6 relative overflow-hidden'>
           <FaArrowLeft className='shrink-0 h-5 w-5 text-base-p2' />
         </div>
       </div>

@@ -59,6 +59,13 @@ export const useSendFunds = ({
         await axios.get('/api/passkey')
       } catch {}
     },
+    onError: async () => {
+      try {
+        await axios.get('/api/passkey')
+      } catch {}
+
+      alert("Couldn't send funds, please try again")
+    },
   })
 
   return q

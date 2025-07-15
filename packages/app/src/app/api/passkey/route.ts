@@ -8,8 +8,9 @@ const prisma = new PrismaClient()
 export const POST = async (req: Request) => {
   const { type, registration, authentication } = await req.json()
 
+  const userId = await getUserCookie()
+
   try {
-    const userId = await getUserCookie()
     const credentialExists = await prisma.passkey.findUnique({
       where: {
         userId,

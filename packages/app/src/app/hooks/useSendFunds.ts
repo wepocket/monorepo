@@ -54,6 +54,11 @@ export const useSendFunds = ({
 
       return sendResultData.transaction as BalanceTransaction
     },
+    onSuccess: async () => {
+      try {
+        await axios.get('/api/passkey')
+      } catch {}
+    },
   })
 
   return q

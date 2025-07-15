@@ -99,3 +99,23 @@ export const GET = async () => {
 
   return Response.json({ success: true })
 }
+
+export const DELETE = async () => {
+  try {
+    const userId = await getUserCookie()
+
+    await prisma.passkey.delete({
+      where: {
+        userId,
+      },
+    })
+  } catch (_e) {
+    const e = _e as Error
+
+    console.log(e.message)
+
+    return Response.json({ success: false }, { status: 500 })
+  }
+
+  return Response.json({ success: true })
+}

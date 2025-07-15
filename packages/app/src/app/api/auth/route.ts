@@ -28,14 +28,6 @@ export async function POST(req: Request) {
     }
 
     await setUserCookie(id)
-
-    try {
-      await prisma.passkey.delete({
-        where: {
-          userId: id,
-        },
-      })
-    } catch {}
   } catch (_e) {
     const e = _e as Error
 

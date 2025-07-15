@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 
 export const POST = async (req: Request) => {
   const { type, registration, authentication } = await req.json()
-  const url = new URL(req.url)
+  // const url = new URL(req.url)
 
   const userId = await getUserCookie()
 
@@ -49,7 +49,8 @@ export const POST = async (req: Request) => {
     if (type === 'verifyRegistration') {
       const expected = {
         challenge: credentialExists?.challenge || '',
-        origin: url.origin || process.env.APP_HOST || '',
+        // origin: url.origin || process.env.APP_HOST || '',
+        origin: 'https://main.d2caz6qi7yvwc6.amplifyapp.com',
       }
 
       console.log('PASSKEY:::', expected)
@@ -73,7 +74,8 @@ export const POST = async (req: Request) => {
     if (type === 'verifyAuthentication') {
       const expected = {
         challenge: credentialExists?.challenge || '',
-        origin: url.origin || process.env.APP_HOST || '',
+        // origin: url.origin || process.env.APP_HOST || '',
+        origin: 'https://main.d2caz6qi7yvwc6.amplifyapp.com',
         userVerified: true,
         counter: -1,
       }

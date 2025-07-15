@@ -29,7 +29,7 @@ export const useSendFunds = ({
         type: 'challenge',
       })
 
-      if (data.isRegistered === false) {
+      if (!data.credential) {
         const registration = await registerPasskey(user?.username || 'wepocket', data.challenge)
 
         await axios.post('/api/passkey', {

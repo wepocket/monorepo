@@ -40,7 +40,6 @@ export const POST = async (req: Request) => {
       return Response.json({
         success: true,
         challenge,
-        isRegistered: Boolean(credentialExists),
         credential: credentialExists?.credential && JSON.parse(credentialExists?.credential as string),
       })
     }

@@ -7,6 +7,7 @@ const prisma = new PrismaClient()
 
 export const POST = async (req: Request) => {
   const { type, registration, authentication } = await req.json()
+  const url = new URL(req.url)
 
   const userId = await getUserCookie()
 
@@ -48,8 +49,10 @@ export const POST = async (req: Request) => {
     if (type === 'verifyRegistration') {
       const expected = {
         challenge: credentialExists?.challenge || '',
-        origin: process.env.APP_HOST || 'http://localhost:3000',
+        origin: url.origin || process.env.APP_HOST || '',
       }
+
+      console.log('PASSKEY:::', expected)
       const registrationParsed = await server.verifyRegistration(registration, expected)
 
       await prisma.passkey.update({
@@ -70,7 +73,7 @@ export const POST = async (req: Request) => {
     if (type === 'verifyAuthentication') {
       const expected = {
         challenge: credentialExists?.challenge || '',
-        origin: process.env.APP_HOST || 'http://localhost:3000',
+        origin: url.origin || process.env.APP_HOST || '',
         userVerified: true,
         counter: -1,
       }
